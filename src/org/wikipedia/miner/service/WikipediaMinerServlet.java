@@ -108,12 +108,15 @@ public class WikipediaMinerServlet extends HttpServlet {
 		try {
 			TransformerFactory tf = TransformerFactory.newInstance();
 
+			//get the real system path of the web/xsl folder that exists in the project path
+			File xslDirectory = new File(getServletContext().getRealPath("xsl"));
+
 			transformersByName = new HashMap<String,Transformer>() ;
-			transformersByName.put("help", buildTransformer("help", new File("/research/wikipediaminer/web/xsl"), tf)) ;
-			transformersByName.put("loading", buildTransformer("loading", new File("/research/wikipediaminer/web/xsl"), tf)) ;
-			transformersByName.put("search", buildTransformer("search", new File("/research/wikipediaminer/web/xsl"), tf)) ;
-			transformersByName.put("compare", buildTransformer("compare", new File("/research/wikipediaminer/web/xsl"), tf)) ;
-			transformersByName.put("wikify", buildTransformer("wikify", new File("/research/wikipediaminer/web/xsl"), tf)) ;
+			transformersByName.put("help", buildTransformer("help", xslDirectory, tf)) ;
+			transformersByName.put("loading", buildTransformer("loading", xslDirectory, tf)) ;
+			transformersByName.put("search", buildTransformer("search", xslDirectory, tf)) ;
+			transformersByName.put("compare", buildTransformer("compare", xslDirectory, tf)) ;
+			transformersByName.put("wikify", buildTransformer("wikify", xslDirectory, tf)) ;
 			
 			Transformer serializer = TransformerFactory.newInstance().newTransformer();
 			serializer.setOutputProperty(OutputKeys.INDENT, "yes");
