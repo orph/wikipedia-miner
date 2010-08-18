@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path=""/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/research/dnk2/wikipediaminer_demo/WEB-INF/lib/mysql-connector-java-3.1.13-bin.jar"/>
+	<classpathentry kind="lib" path="/home/dnk2/workspace/lib/trove.jar"/>
+	<classpathentry kind="output" path=""/>
+</classpath>

@@ -1,0 +1,233 @@
+body {
+	background-color: white;
+	
+	margin: 0; /* to avoid margins */
+	
+	padding: 9px ;
+	
+	font: x-small sans-serif;
+	text-align: left ;
+} 
+
+#wm {
+	position: absolute ;
+	left: 5px ;
+	top: 0px ;
+	
+	font-size: 12px ;
+}
+
+#wikifier {
+	font-weight: bold ;
+	position: absolute ;
+	left: 20px ;
+	top: 10px ;
+	
+	font-size: 24px ;
+}
+
+table{
+	border: 1px solid #687898 ;
+	background-color: #f3f4f7 ;
+	margin-left: 120px ;
+	margin-top: 0px ;
+	padding: 2px ;
+}
+
+.label {
+	padding-left: 10px ;
+	white-space: nowrap;
+	font-size: 12px;
+}
+
+.swatch {
+	float: right ;
+	
+	width: 7px ;
+	height: 7px ;
+	top: -10px ;
+	
+	margin-left: 5px ;
+	margin-top: 2px ;
+	
+	border: 3px solid #f3f4f7;
+	cursor: pointer ;
+}
+
+
+.slider {
+        width: 150px ;
+        height: 22px ;
+        background-image: url(../images/slider_mid.gif);
+}
+
+.slider_left {
+        background-image: url(../images/slider_end.gif) ;
+        float: left ;
+        width: 1px ;
+        height: 22px ;
+}
+
+
+.slider_right {
+        background-image: url(../images/slider_end.gif) ;
+        float: right ;
+        width: 1px ;
+        height: 22px ;
+}
+
+
+.slider .thumb {
+        background-image: url(../images/slider_thumb.gif);
+        width: 13px ;
+        height: 22px ;
+}
+
+.slider .thumb:hover {
+        background-image: url(../images/slider_thumb_h.gif) ;
+}
+
+#txtSource {
+	float: right ;
+	width: 100% ;
+	border: 1px solid rgb(200,200,200) ;
+}
+
+#removeFrame {
+	position: absolute ;
+	width: 50px ;
+	text-align: right ;
+	
+	top: 10px ;
+	right: 10px ;
+}
+
+#button {
+	margin-left: 20px ;
+}
+
+
+#box {
+	position: absolute ;
+	
+	left: 170px ;
+	
+	width: 850px ;
+
+	border: 1px solid #687898 ;
+	background-color: #f3f4f7 ;
+	padding: 10px ;
+	padding-bottom: 6px ;
+}
+
+#box .tl {
+	top: -1px ;
+	left: -1px ;
+	background-image: url("images/box_tl.gif") ;
+	
+	position: absolute;
+	width: 9px ;
+	height: 9px ;
+	padding:0px ;
+	margin: 0px ;
+	border: none ;
+}
+
+#box .tr {
+	top: -1px ;
+	right: -1px ;
+	background-image: url("images/box_tr.gif") ;
+	
+	position: absolute;
+	width: 9px ;
+	height: 9px ;
+	padding:0px ;
+	margin: 0px ;
+	border: none ;
+}
+
+#box .bl {
+	bottom: -1px ;
+	left: -1px ;
+	background-image: url("images/box_bl.gif") ;
+	
+	position: absolute;
+	width: 9px ;
+	height: 9px ;
+	padding:0px ;
+	margin: 0px ;
+	border: none ;
+}
+
+#box .br {
+	bottom: -1px ;
+	right: -1px ;
+	background-image: url("images/box_br.gif") ;
+	
+	position: absolute;
+	width: 9px ;
+	height: 9px ;
+	padding:0px ;
+	margin: 0px ;
+	border: none ;
+}
+
+em {
+font-style: normal ;
+font-weight: bold ;
+}
+
+p {
+	text-align: center ;
+	margin: .4em 1em .5em 1em;
+	line-height: 1.5em;
+}
+
+a {
+  cursor: pointer ;
+	text-decoration: none;
+	color: #002bb8;
+	background: none;
+}
+
+a:visited {
+	color: #5a3696;
+}
+a:active {
+	color: #faa700;
+}
+a:hover {
+	text-decoration: underline;
+}
+
+
+
+#progress {
+	margin: .4em auto .5em auto;
+	
+	width: 500px ;
+	height: 25px ;
+			
+	border: 1px solid #687898 ;
+	background-color: #f3f4f7 ;
+}
+
+#progressBar {
+	position: absolute ;
+	
+	height: 25px ;
+	width: 50px ;
+
+	background-color: #687898 ;
+}
+
+#progressLabel {
+	position: absolute ;
+	
+	height: 25px ;
+	width: 500px ;
+	
+	font-weight: bold ;
+	text-align: center ;
+}
+

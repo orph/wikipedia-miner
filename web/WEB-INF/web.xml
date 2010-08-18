@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app>
+
+    <display-name>WikipediaMiner Services</display-name>
+    <description>
+
+    </description>
+
+    <context-param>
+      <param-name>webmaster</param-name>
+      <param-value></param-value>
+      <description>
+        The EMAIL address of the administrator to whom questions
+        and comments about this application should be addressed.
+      </description>
+    </context-param>
+
+    <context-param>
+      <param-name>server_path</param-name>
+      <param-value></param-value>
+    </context-param>
+
+    <context-param>
+      <param-name>service_name</param-name>
+      <param-value>service</param-value>
+    </context-param>
+
+    <context-param>
+      <param-name>mysql_server</param-name>
+      <param-value></param-value>
+    </context-param>
+
+    <context-param>
+      <param-name>mysql_database</param-name>
+      <param-value></param-value>
+    </context-param>
+
+    <context-param>
+      <param-name>mysql_user</param-name>
+      <param-value></param-value>
+    </context-param>
+
+    <context-param>
+      <param-name>mysql_password</param-name>
+      <param-value></param-value>
+    </context-param>
+
+    <context-param>
+      <param-name>proxy_host</param-name>
+      <param-value></param-value>
+    </context-param>
+
+    <context-param>
+      <param-name>proxy_port</param-name>
+      <param-value></param-value>
+    </context-param>
+    
+    <context-param>
+      <param-name>proxy_user</param-name>
+      <param-value></param-value>
+    </context-param>
+
+    <context-param>
+      <param-name>proxy_password</param-name>
+      <param-value></param-value>
+    </context-param>
+
+    <context-param>
+      <param-name>wikifier_disambigModel</param-name>
+      <param-value></param-value>
+    </context-param>
+
+    <context-param>
+      <param-name>wikifier_linkModel</param-name>
+      <param-value></param-value>
+    </context-param>
+
+    <context-param>
+      <param-name>stopword_file</param-name>
+      <param-value></param-value>
+    </context-param>
+
+    <context-param>
+      <param-name>data_directory</param-name>
+      <param-value></param-value>
+    </context-param>
+
+
+    <servlet>
+      <servlet-name>WikipediaMinerServlet</servlet-name>
+      <description>
+
+      </description>
+      <servlet-class>
+        org.wikipedia.miner.service.WikipediaMinerServlet
+      </servlet-class>
+    </servlet>
+    
+
+    <servlet-mapping>
+      <servlet-name>WikipediaMinerServlet</servlet-name>
+      <url-pattern>/service</url-pattern>
+    </servlet-mapping>
+    
+
+    <session-config>
+      <session-timeout>30</session-timeout>    <!-- 30 minutes -->
+    </session-config>
+    
+    
+</web-app>

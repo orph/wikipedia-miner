@@ -1,0 +1,533 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+	<head>
+		<title>Wikipedia Miner - Readme</title>
+
+		
+		<style>
+			
+			body {
+				font-size: 14px ;
+			}
+			
+			.code {
+				font-family: monospace;
+				font-weight: bold;
+				color: rgb(50, 50, 50) ;
+			}
+			
+			.small{
+				font-weight: normal; 
+				font-size: 13px ;
+				margin-top: 0px ;
+				margin-bottom: 4px ;
+			}
+			
+			.bold {
+				font-weight: bold ;
+			}
+						
+		</style>
+		
+		
+	</head>
+	<body>
+		<h1>Wikipedia Miner Readme</h1>
+		
+		<p>
+			
+			
+			
+		</p>
+		
+		<ul>
+			<li><a href="#requirements">Requirements</a></li>
+			<li><a href="#installation">Installation</a></li>
+			<li><a href="#web">Web Services</a></li>
+			<li><a href="#data">Tables and Summary Files</a></li>
+			<li><a href="#licence">Licence</a></li>
+		</ul>
+		
+		<h2><a name="requirements"></a>Requirements</h2>
+		
+		<p>
+			To run wikipedia miner, you will need lots of hard-drive space and around
+			3G of memory. On top of that, you will need...
+		</p>
+				
+		<ul>
+			<li>Write access to a <a href="http://www.mysql.com/">MySql</a> Server</li>
+
+				<li>Java (1.5 or above)</li>
+				<li><a href="http://dev.mysql.com/downloads/connector/j/">MySql Connector/J</a>&mdash;Java API for connecting to MySql databases.</li>
+				<li><a href="http://trove4j.sourceforge.net/">Trove</a>&mdash;Java API for efficient sets, hashtables, etc.</li>
+				<li><a href="http://www.cs.waikato.ac.nz/ml/weka">Weka</a>&mdash;an open-source workbench of machine learning algorithms for data mining tasks. </li>
+				
+			</ul>
+		
+		<p>
+			If you only need Wikipedia's structure rather than it's full textual content, then you can save a lot of time  by using one of our pre-summarized
+			dumps (available <a href="">here</a>). Otherwise, you will need: 
+		</p>
+		
+		<ul>
+			<li>
+				A copy of Wikipedia's content (one of the <i>pages-articles.xml.bz2</i> files from <a href="http://download.wikimedia.org/backup-index.html">here</a>) 
+			</li>
+			<li><a href="http://www.perl.org/get.html">Perl</a></li>
+			<li><a href="http://search.cpan.org/~triddle/Parse-MediaWikiDump-0.51/">Parse:MediaWikiDump</a>&mdash;Perl tools for processing MediaWiki dump files.</li>
+		</ul>
+		
+		<p>If you want to host your own Wikipedia Miner web services, then you will also need</p>
+		<ul>
+			<li><a href="http://tomcat.apache.org/">Apache Tomcat</a></li>
+		</ul>
+		
+		<h2><a name="installation"></a>Installation</h2>
+		
+		<ol>
+		<li class="bold">
+			Set up a mysql server
+			
+			<p class="small">
+				This should be configured for largish MyISAM databases. You will need a database to store the wikipedia data, and an account that has write access to it.    
+			</p>
+		</li>
+
+    	<p class="small">
+    		If you are happy using the versions of Wikipedia that we have preprocessed and made available, then <a href="https://sourceforge.net/project/showfiles.php?group_id=191683&package_id=300169">download one from SourceForge</a>, and skip to <a href="#step5">step 5</a>. Otherwise...
+    	</p>
+    
+		<li class="bold">
+			Download and uncompress a <a href="http://download.wikimedia.org/enwiki/">wikipedia xml dump</a>
+			
+			<p class="small">We want the file with current versions of article content, the one that ends with <i>pages-articles.xml</i>. Uncompress it and put it in a folder on its own, on a drive where you have lots of space.</p>
+		</li>
+       
+	    <li class="bold">
+	    	Tweak the extraction script for your version of Wikipedia
+			
+			<p class="small">
+			 This is only necessary if not working with the <i>en</i> (English) Wikipedia. Open up <span class="code">extraction/extractWikipediaData.pl</span> in a text editor. Under the section called <i>tweaking for different versions of wikipedia</i>, modify the following variables:
+   			
+			<ul class="small">
+				<li>
+				 	<span class="code">@disambig_templates</span>&mdash;an array of template names that are used to identify disambiguation pages
+       			</li>
+				<li>
+    				<span class="code">@disambig_categories</span>&mdash;an array of category names that disambiguation pages belong to. This is only needed because a lot of people do this directly, instead of using the appropriate template
+ 				</li>
+				<li>  
+    				<span class="code">$root_category</span>&mdash;the name of the root category, the one from which all other categories descend.   
+				</li>
+			</ul>
+			</p>
+			<p class="small">
+				<em>WARNING:</em> These scripts have only been tested on <i>en</i> and <i>simple</i> Wikipedias. If you get a language version working,  then please post the details up on the sourceforge forum.
+			</p>
+	    </li>   
+		<li class="bold">   
+			Extract csv summaries from the xml dump
+
+			<p class="small">
+				The perl scripts for this are in the <span class="code">extraction</span> directory. 
+			</p>
+    
+			<ol style="list-style:lower-alpha">
+				<li class="bold">
+		    		<p class="small">
+						The main script, extractWikipediaData, does everything that most users will need (more on what it doesn't do in 4b). To run it, call
+		   
+		    			<span class="code">perl extractWikipediaData &lt;dir&gt;</span>
+		   
+		    			where <span class="code">dir</span> is the directory where you put the xml dump. 		
+					</p>
+		    
+		    		<p class="small">   	
+		    			You can supply an extra flag <span class="code">-noContent</span> if you just want the structure of how pages link to each other rather than 
+		    			their full textual content. This takes up a huge amount of space, and you can do a lot (finding topics, navigating links, 
+		    			identifying how topics relate to each other, etc) without it.
+			        </p>
+		    
+		    		<p class="small">
+		    			<em>WARNING:</em> this will keep the computer busy for a day or two; you can <a href="https://sourceforge.net/forum/forum.php?thread_id=2643967&forum_id=894561">check out the forums</a> to see how long it has taken other people.
+		    			If you do need to halt the process then don't worry, it will pick up more-or-less where it left off. 
+		    		</p>
+		    
+		    		<p class="small">
+		    			If the script seems to stall, particularly when summarizing anchors or the links in to each page, then chances are you have run out
+		    			of memory. There is another flag <span class="code">-passes</span> to split the data up and make it fit. The default is <span class="code">-passes 2</span>; try something higher and
+		    			see how it goes.  
+		   			 </p>
+		    	</li>
+				<li class="bold">
+					
+		   			<p class="small">
+						The only csv file that the above script will not extract is <span class="code">anchor_occurance.csv</span>, which compares how often anchor terms are used as links,
+		    			and how often they occur in plain text. Chances are you won't want this&mdash;it's mainly useful for identifying how likely terms are
+		    			to correspond to topics, so that topics can be recognized when they occur in plain text.
+		   			</p>
+		    
+		    		<p class="small">
+		    			This takes a very long time to calculate. Longer than extracting all of the other files. Fortunately it is easily parallelized.
+		    			The following scripts are included so that you can throw multiple computers (or processors) at the problem, if you have them.
+		   				
+						<ul class="small">
+							<li>
+								<span class="code">splitData.pl &lt;dir&gt; &lt;n&gt;</span>
+								<p style="margin-left: 10px">
+									splits the data found in <span class="code">dir</span> into <span class="code">n</span> seperate files.
+		                			The files are saved as <span class="code">split_0.csv</span>, <span class="code">split_1.csv</span>, etc. within the provided directory.
+								</p>
+							</li>
+							<li><span class="code">extractAnchorOccurances.pl </span>
+								<p style="margin-left: 10px">
+									calculates anchor occurrences from a split file. The directory must contain one of the split files produced by <span class="code">splitData.pl</span>,
+		                			and the <span class="code">anchor.csv</span> file created by <span class="code">extractWikipediaData.pl</span>. The results are saved to <span class="code">anchor_occurance_&lt;n&gt;.csv</span>.
+								</p>
+							</li>	
+							<li><span class="code">mergeAnchorOccurances.pl &lt;dir&gt; &lt;n&gt;</span>
+								<p style="margin-left: 10px">
+									merges all of the intermediate results. The <span class="code">dir</span> must contain all of the seperate <span class="code">anchor_occurance_&lt;n&gt;</span>.csv files.
+		               				The result is saved to <span class="code">&lt;dir&gt;/anchor_occurance.csv</span>
+								</p>
+							</li>
+						</ul>
+					</p>
+				</li>
+			</ol>
+ 	    </li>   
+		<li class="bold">                 
+			<a name="step5"></a>Import the extracted data into MySQL
+			
+			<p class="small">
+    			The easiest way to do this is via java&mdash;just create an instance of WikipediaDatabase with the details of the database you created
+    			earlier, and call the loadData() method with the directory containing the extracted csv files.
+   				 This will do the work of creating all of the tables and loading the data into them, and will even give you information on
+    			how long it's taking. At worst this should take a few hours.
+   			</p>
+    
+    		<p class="small">
+    			The details of this are in the JavaDoc.
+   			</p>
+    
+    		<p class="small">
+    			<em>NOTE:</em> You need the MySQLConnectorJ, Trove, and Wikipedia-Miner jar files in the build path to compile and run the java code.
+    			You may also need to increase the memory available to the Java virtual machine, with the -Xmx flag
+			</p>
+ 	    </li>   
+		
+		<li class="bold">  		
+			Delete unneeded files
+
+			<p class="small">
+    			Don't delete everything. Some of the csv files will be needed for caching data to memory, because its faster to do
+    			that from file than from the database. So keep the following files:
+				<ul class="small">
+					<li class="code">page.csv</li>
+					<li class="code">categorylink.csv</li>
+					<li class="code">pagelink_out.csv</li>
+					<li class="code">pagelink_in.csv</li>
+					<li class="code">anchor_summary.csv</li>
+					<li class="code">anchor_occurance.csv</li>
+					<li class="code">generality.csv</li>
+				</ul>
+			</p>
+			<p class="small">	
+    			You can delete all of the others. It might be worth zipping the original xml dump up and keeping that though, because they
+    			don't seem to be archived anywhere for more than a few months.
+			</p>
+  	    </li>   
+		
+		<li class="bold">  		  
+			Start developing!
+ 			
+			<p class="small">
+    			Hopefully the JavaDoc will be clear enough to get you going. Also have a look at the main methods for
+    			each of the main classes (Wikipedia, Article, Anchor, Category, etc) for demos on how to use them.
+			</p>
+			<p class="small">
+				Pop into the <a href="https://sourceforge.net/forum/?group_id=191683">SourceForge forum</a> if you have any trouble.
+			</p>
+		</li>
+		</ol>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		<h2><a name="web"></a>Web Services</h2>
+		
+		<p>
+			 If you need help on using any of the <a href="http://wdm.cs.waikato.ac.nz:8080">Wikipedia Miner web services</a>, go <a href="http://wdm.cs.waikato.ac.nz:8080/service?help">here</a> or append <span class=code>&amp;help</span> to any of the URLs.
+		</p>	
+			
+		
+		<p>
+			If you want to host the <a href="http://wdm.cs.waikato.ac.nz:8080">Wikipedia Miner web services</a> yourself, you will need to:
+			
+			<ol>
+				<li class=bold>
+					Get Apache Tomcat up and running
+				
+					<p class=small>This is beyond the scope of this document, but there are lots of tutorials out there.</p>
+				</li>
+				
+				<li class=bold>
+					Ensure that the Wikipedia Miner web directory is accessable via Tomcat
+				
+					<p class=small>This is the <span class=code>web</span> directory within your Wikipedia Miner installation. Again, there are lots of tutorials out there to explain how to do this.</p>
+				</li>
+				
+				<li class=bold>
+					Gather the appropriate jar files
+				
+					<p class=small>Place the jar files for Wikipedia Miner, Weka, Trove and MySql Connector/J into <span class=code>web/WEB-INF/lib/</span>.</p>
+				</li>
+
+				<li class=bold>
+					Configure web.xml
+				
+					<p class=small>Edit <span class=code>web/WEB-INF/web.xml</span> to specify the following context parameters:</p>
+					
+					<ul class=small>
+						<li><span class=code>server_path</span>
+							<p class=small style="margin-left:10px">
+								The url of the <span class=code>web</span> directory (as it would be typed into a web browser) 
+							</p>						
+						</li>
+						<li><span class=code>service_name</span>
+							<p class=small style="margin-left:10px">
+								The name of the service (typically <i>service</i>, unless you change it)
+							</p>						
+						</li>
+						<li><span class=code>mysql_server</span>
+							<p class=small style="margin-left:10px">
+								The name of the server hosting the mysql database (typically <i>localhost</i>)
+							</p>						
+						</li>
+						<li><span class=code>mysql_database</span>
+							<p class=small style="margin-left:10px">
+								The name of the database in which Wikipedia Miner's data has been stored.
+							</p>						
+						</li>
+						<li><span class=code>mysql_user</span>
+							<p class=small style="margin-left:10px">
+								The name of a mysql user who has read access to the database (you can leave this out if anonymous access is allowed)
+							</p>						
+						</li>
+						<li><span class=code>mysql_password</span>
+							<p class=small style="margin-left:10px">
+								The password for the mysql user (you can leave this out if anonymous access is allowed)
+							</p>						
+						</li>
+						<li><span class=code>data_directory</span>
+							<p class=small style="margin-left:10px">
+								The directory containing csv files extracted from a Wikipedia dump.
+							</p>						
+						</li>
+					</ul>
+					
+					<p class=small>
+					If you want users to be able to wikify URLs (the <i>wikify</i> service) or retrieve images from FreeBase (the <i>define</i> service) then you
+					will have to tell Wikipedia Miner how to connect to the internet.
+					</p>
+					
+					<ul class=small>
+					
+						<li><span class=code>proxy_host</span></li>
+						<li><span class=code>proxy_port</span></li>
+						<li><span class=code>proxy_user</span></li>
+						<li><span class=code>proxy_password</span></li>
+					</ul>
+					
+					<p class=small>
+						If you want users to be able to wikify anything, then you will have to tell Wikipedia miner where to find models for disambiguation and link detection.
+					</p>
+					
+					<ul class=small>	
+						<li><span class=code>wikifier_disambigModel</span>
+							<p class=small style="margin-left:10px">
+								You can create one of these by building and saving a Disambiguator classifier (see the JavaDoc), or just use the one provided in <span class=code>models/disambig.model</span>. 
+							</p>						
+						</li>
+						<li><span class=code>wikifier_linkModel</span>
+							<p class=small style="margin-left:10px">
+								You can create one of these by building and saving a LinkDetector classifier (see the JavaDoc), or just use the one provided in <span class=code>models/linkDetect.model</span>.
+							</p>					
+						</li>
+						<li><span class=code>stopword_file</span>
+							<p class=small style="margin-left:10px">
+								A file containing words to be ignored when detecting links (one word per line).
+							</p>						
+						</li>
+					</ul>
+				</li>
+			</ol>
+		</p>
+		<p>
+			With Tomcat running, you should now be able to navigate to <span class=code>server_path</span> in a web browser and see a page like <a href="http://wdm.cs.waikato.ac.nz:8080">this</a>, listing all of the web services available.
+		</p>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+			
+		<h2><a name="data"></a>Tables and Summary Files</h2>
+			
+			<p>This section describes the summaries (csv files and database tables) that Wikipedia miner produces, in case you want to use them directly. </p> 
+		
+			<ul>
+				
+				<li class="bold">
+					page
+					
+					<p class=small>lists all of the valid pages in the dump, along with their titles and types</p>
+					<ul class=small>
+						<li>id (Integer)</li>
+						<li>title (String)</li>
+						<li>type (1=ARTICLE, 2=CATEGORY, 3=REDIRECT, 4=DISAMBIGUATION)</li>
+					</ul>
+				</li>
+
+				<li class="bold">
+					redirect
+					
+					<p class=small>associates all redirect pages with their targets</p>
+					<ul class=small>
+						<li>from_id (Integer)</li>
+						<li>to_id (Integer)</li>
+					</ul>
+				</li>
+
+				<li class="bold">
+					categorylink
+					
+					<p class=small>associates all categories with their child categories and articles.</p>
+					<ul class=small>
+						<li>parent_id (Integer)</li>
+						<li>child_id (Integer)</li>
+					</ul>
+				</li>
+  
+ 				<li class="bold">
+					pagelink
+					
+					<p class=small>associates all articles with the other articles they link to. Redirects are resolved wherever possible.</p>
+					<ul class=small>
+						<li>from_id (Integer)</li>
+						<li>to_id (Integer)</li>
+					</ul>
+				</li> 
+				
+				 <li class="bold">
+					anchor
+					
+					<p class=small>associates the text used within links to the pages that they link to.</p>
+					<ul class=small>
+						<li>text (String, the anchor text found within the link)</li>
+						<li>to_id (Integer)</li>
+						<li>count (Integer, number of times this anchor is used to link to this destination)</li>
+					</ul>
+				</li> 
+  
+				 <li class="bold">
+					disambiguation
+					
+					<p class=small>associates disambiguation pages with the senses listed on them.</p>
+					<ul class=small>
+						<li>from_id (Integer, the id of the disambiguation page)</li>
+						<li>to_id (Integer, the id of the sense page)</li>
+						<li>index (Integer, the position or index of this sense. Items mentioned earlier tend to be more obvious or well known senses of the term)</li>
+						<li>scope_note (String, the text used to explain how this sense relates to the ambiguous term)</li>
+					</ul>
+				</li> 
+
+				 <li class="bold">
+					equivalence
+					
+					<p class=small>associates categories and articles which correspond to the same concept</p>
+					<ul class=small>
+						<li>cat_id (Integer)</li>
+						<li>art_id (Integer)</li>
+					</ul>
+				</li> 
+
+				 <li class="bold">
+					generality
+					
+					<p class=small>lists the minimum distance (or depth) between a category or article and the root of Wikipedia's category structure. Small values indicate general topics, large values indicate highly specific ones.</p>
+					<ul class=small>
+						<li>id (Integer)</li>
+						<li>depth (Integer)</li>
+					</ul>
+				</li> 
+
+				 <li class="bold">
+					translation
+					
+					<p class=small>associates an article with all of the language links listed within it.</p>
+					<ul class=small>
+						<li>id (Integer)</li>
+						<li>lang (String, <i>en</i>, <i>fr</i>, <i>jp</i>, etc)</li>
+						<li>text (String, generally a translation of the article's title, in the given language)</li>
+					</ul>
+				</li> 
+		
+				 <li class="bold">
+					content
+					
+					<p class=small>associates an article with it's content, in the original markup</p>
+					<ul class=small>
+						<li>id (Integer)</li>
+						<li>content (String, in raw mediawiki markup)</li>
+					</ul>
+				</li> 
+
+				 <li class="bold">
+					stats
+					
+					<p class=small>provides some summary statistics of the wikipedia dump</p>
+					<ul class=small>
+						<li>article_count (Integer)</li>
+						<li>category_count (Integer)</li>
+						<li>redirect_count (Integer)</li>
+						<li>disambiguation_count (Integer)</li>
+					</ul>
+				</li> 
+
+				 <li class="bold">
+					anchor_occurance
+					
+					<p class=small>lists the number of articles in which an anchor occurs as a link, vs the number of articles it occurs in at all.</p>
+					<ul class=small>
+						<li>anchorText (String)</li>
+						<li>link_count (Integer)</li>
+						<li>occ_count (Integer)</li>
+					</ul>
+				</li> 
+			</ul>
+		
+		<h2><a name="licence"></a>Licence</h2>
+			
+		<p>
+			The Wikipedia Miner toolkit is open-source software, distributed under the terms of the <a href="http://www.gnu.org/copyleft/gpl.html">GNU General Public License</a>.	
+			It comes with ABSOLUTELY NO WARRANTY.
+		</p>
+		
+	</body>
+</html>
