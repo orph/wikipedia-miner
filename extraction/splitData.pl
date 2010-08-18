@@ -74,7 +74,7 @@
 
 	my $articles = 0 ;
 
-	while(defined($page = $pages->page)) {
+	while(defined($page = $pages->next)) {
     
     print_progress("splitting dump file", $start_time, $pages->current_byte, $parts_total) ;
     
