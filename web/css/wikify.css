@@ -1,31 +1,16 @@
-.container {
-	width: 600px ;
-	height: auto ;
-	margin-top: 30px ;
-	
-	border: 1px solid #687898 ;
-	background-color: #f3f4f7 ;
-	
-	padding: 10px ;
-	
-}
-
-.container p {
-	
-	margin-top: 0em ;
-	margin-bottom: 0.5em ;
-	
-	padding: 0px ;
-}
-
 .inputBox, .outputBox {
 	border: 1px solid rgb(100,100,100) ;
 	padding: 5px ;
 	background-color: white ;
 	
-	width: 588px ;
+	width: 100% ;
 	height: 200px ;
 	overflow:auto; 	
+	
+}
+
+.outputBox a {
+	color: #002bb8 ;
 }
 
 .outputBox {
@@ -33,18 +18,20 @@
 	
 }
 
-.outputBox .explanation {
-	font-size: 11px ;
-
+#tab_topics .explanation {
+	font-size: 0.75em ;
 }
 
 .inputBox {
 	font-family: monospace ;
 	font-size: 13px ;
 	text-align: left ;
+	height: 240px ;
+	
+	float: left ;
 }
 
-#box_rawHtml, #box_wiki {
+#tab_rawHtml, #tab_wiki {
 	white-space: pre-wrap;  
 	white-space: -moz-pre-wrap !important;  
 	white-space : pre; 
@@ -55,41 +42,42 @@
 	text-align: left ;
 }
 
+#tab_wiki a, #tab_renderedHtml a{
+	color: #002bb8 ;
+	
+}
+
 
 #showOptions {
-	background-image: url(../images/plus.gif) ;
-	background-position: 2px center ;
-	background-repeat: no-repeat;
-	
-	padding-left: 15px ;
+	padding-right: 15px ;
+	color: #002bb8 ;
 }
 
 #hideOptions {
-	background-image: url(../images/minus.gif) ;
-	background-position: 2px center ;
-	background-repeat: no-repeat;
+	padding-right: 15px ;
 	display: none ;
-	
-	padding-left: 15px ;
+	color: #002bb8 ;
 }
 
 #options {
-	border: 1px solid rgb(230,230,230) ;
-	padding: 5px ;
-	display: none ;
+	padding: 5px; 
 	
-	font-size: 12px ;
-
 	width: 400px ;
+	height: 240px ;
+	float: right ;
+	
+	display: none ;
 }
 
 #options fieldset {
 	border: none ;
 	
+	padding-bottom: 10px ;
 }
 
 #options legend {
 	font-weight: bold;
+	color: black ;
 }
 
 #options input {
@@ -108,82 +96,6 @@
 	padding: 0px 5px ;
 }
 
-#submit {
-	text-align: right ;
-}
-
-.tabPanel {
-	height: 23px ;
-	background-image: url("../images/tab_l.gif") ;
-	background-repeat: repeat-x;
-}
-
-.tabPanel .right {
-	height: 23px ;
-	width: 16px ;
-	background-image: url("../images/tab_r.gif") ;
-	background-repeat: repeat-x;
-	float: right ;
-}
-
-
-.tabSelected {
-	border: none ;
-	height: 23px ;
-	width: 140px ;
-	padding-left: 7px ;
-	float: right ;
-	
-	line-height: 23px ;
-	cursor: default;
-	
-	background-image: url("../images/tab_selected_l.gif") ;
-	background-repeat: no-repeat;
-	background-position: left top ;
-	float: right ;
-
-} 
-
-.tabSelected .right {
-	border: none ;
-	width: 7px ;
-	height: 23px ;
-	
-	float: right ;
-	
-	background-image: url("../images/tab_selected_r.gif") ;
-	background-repeat: no-repeat;
-	background-position: left top ;
-}
-
-.tabDeselected {
-	border: none ;
-	height: 23px ;
-	width: 140px ;
-	padding-left: 7px ;
-	float: right ;
-	
-	line-height: 23px ;
-	cursor: pointer;
-	
-	background-image: url("../images/tab_deselected_l.gif") ;
-	background-repeat: no-repeat;
-	background-position: left top ;
-
-} 
-
-.tabDeselected .right {
-	border: none ;
-	width: 7px ;
-	height: 23px ;
-	
-	float: right ;
-	
-	background-image: url("../images/tab_deselected_r.gif") ;
-	background-repeat: no-repeat;
-	background-position: left top ;
-}
-
 .topicList li{
 	display:block;
 	float:left;
@@ -192,36 +104,4 @@
 	
 	height:30px;
 	line-height:30px;
-}
-
-.slider {
-	width: 150px ;
-	height: 22px ;
-	background-image: url(../images/slider_mid.gif);
-}
-
-.slider_left {
-	background-image: url(../images/slider_end.gif) ;
-	float: left ;
-	width: 1px ;
-	height: 22px ;
-}
-
-
-.slider_right {
-        background-image: url(../images/slider_end.gif) ;
-        float: right ;
-        width: 1px ;
-        height: 22px ;
-}
-
-
-.slider .thumb {
-	background-image: url(../images/slider_thumb.gif);
-	width: 13px ;
-	height: 22px ;
-}
-
-.slider .thumb:hover {
-	background-image: url(../images/slider_thumb_h.gif) ;
 }

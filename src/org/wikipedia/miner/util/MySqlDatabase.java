@@ -199,6 +199,31 @@ public class MySqlDatabase {
 	}
 	
 	/**
+	 * returns true if this database contains a field with the given name in the given table, otherwise false.
+	 * 
+	 * @param fieldName the name of the field to check
+	 * @param tableName the name of the table to check
+	 * @return true if this database contains a field with the given name in the given table, otherwise false.
+	 * @throws SQLException if there is a problem with the database
+	 */
+	public boolean fieldExists(String fieldName, String tableName) throws SQLException {
+		
+		boolean exists = true ;
+		Statement stmt = createStatement() ;
+		
+		
+		try {
+			stmt.executeQuery("SELECT " + fieldName + " FROM `" + tableName + "` LIMIT 1") ;	
+		} catch (SQLException e) {
+			exists = false ;
+		} 
+		
+		stmt.close() ;
+		return exists ;
+	}
+	
+	
+	/**
 	 * returns true if this database contains an index for the given table and index name, otherwise false.
 	 * 
 	 * @param tableName the name of the table to check

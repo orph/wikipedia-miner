@@ -527,15 +527,14 @@ public class Article extends Page {
 		return outLinkIdsAndCounts ;
 	}
 
-	private double getRelatednessFromOutLinks(Article art) throws SQLException{
-
-		if (getId() == art.getId()) {
+	private double getRelatednessFromOutLinks(Article article) throws SQLException{
+		
+		if (getId() == article.getId()) 
 			return 1 ;
-		}
 
 		int totalArticles = database.getArticleCount() ;
 		int[][] dataA = getLinksOutIdsAndCounts() ;
-		int[][] dataB = art.getLinksOutIdsAndCounts() ;
+		int[][] dataB = article.getLinksOutIdsAndCounts() ;
 
 		if (dataA.length == 0 || dataB.length == 0)
 			return 0 ;
@@ -559,23 +558,34 @@ public class Article extends Page {
 
 			if (idA == idB) {
 				double probability = Math.log((double)totalArticles/dataA[indexA][1]) ;
-				vectA.add(new Double(probability)) ;
-				vectB.add(new Double(probability)) ;
+				vectA.add(probability) ;
+				vectB.add(probability) ;
 
 				indexA ++ ;
 				indexB ++ ;
-			} else if ((idA < idB && idA > 0)|| idB < 0) {
-				double probability = Math.log((double)totalArticles/dataA[indexA][1]) ;
-				vectA.add(new Double(probability)) ;
-				vectB.add(new Double(0)) ;
-
-				indexA ++ ;
 			} else {
-				double probability = Math.log((double)totalArticles/dataB[indexB][1]) ;
-				vectA.add(new Double(0)) ;
-				vectB.add(new Double(probability)) ;
 
-				indexB ++ ;
+				if ((idA < idB && idA > 0)|| idB < 0) {
+					
+					double probability = Math.log((double)totalArticles/dataA[indexA][1]) ;
+					vectA.add(probability) ;
+					if (idA == article.getId())
+						vectB.add(probability) ;
+					else
+						vectB.add(0.0) ;
+				
+					indexA ++ ;
+				} else {
+					
+					double probability = Math.log((double)totalArticles/dataB[indexB][1]) ;
+					vectB.add(new Double(probability)) ;
+					if (idB == id)
+						vectA.add(probability) ;
+					else
+						vectA.add(0.0) ;
+
+					indexB ++ ;
+				}
 			}
 		}
 
@@ -605,7 +615,10 @@ public class Article extends Page {
 
 	
 	private double getRelatednessFromInLinks(Article article) throws SQLException{
-
+		
+		if (getId() == article.getId()) 
+			return 1 ;
+		
 		int[] linksA = this.getLinksInIds() ; 
 		int[] linksB = article.getLinksInIds() ; 
 
@@ -623,10 +636,21 @@ public class Article extends Page {
 				linksBoth ++ ;
 				indexA ++ ;
 				indexB ++ ;
-			} else if ((idA < idB && idA > 0)|| idB < 0) {
-				indexA ++ ;
-			} else {				
-				indexB ++ ;
+			} else {
+				
+				if ((idA < idB && idA > 0)|| idB < 0) {
+					
+					if (idA == article.getId()) 
+						linksBoth ++ ;
+					
+					indexA ++ ;
+				} else {
+					
+					if (idB == id) 
+						linksBoth ++ ;
+					
+					indexB ++ ;
+				}
 			}
 		}
 
@@ -739,7 +763,7 @@ public class Article extends Page {
 			
 			return cmp ;
 		}
-	}
+	}	
 
 	/**
 	 * Provides a demo of functionality available to Articles

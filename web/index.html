@@ -1,0 +1,164 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+	<head>
+		<title>Wikipedia Miner - Services</title>
+		<link rel="stylesheet" href="css/wikipediaMiner.css" type="text/css">
+		
+		<script type="text/javascript">
+			function toggleItem(itemId) {
+				var item = document.getElementById(itemId) 
+		
+				if (item.style.display == "none")
+					item.style.display = "" ;
+				else
+					item.style.display = "none" ;
+			}
+		</script>
+		
+	</head>
+	
+	<body>
+
+		<div id="title">
+			
+		</div>
+ 		<div id="content">
+
+			<div id="navigation">
+				<a href="http://wikipedia-miner.sf.net/index.htm">Home</a>
+				<em>Services</em>
+				<a href="http://wikipedia-miner.sf.net/details.htm">Details</a>
+
+				<a href="http://wikipedia-miner.sf.net/publications.htm">Publications</a>
+				<a href="http://www.cs.waikato.ac.nz/~dnk2">Contact</a>
+			</div>
+
+			<form name="wikify" method="post" action="service?task=wikify">
+				<input name="source" type="hidden" value="Wikipedia is a free, multilingual encyclopedia project supported by the non-profit Wikimedia Foundation. Its name is a portmanteau of the words wiki (a technology for creating collaborative websites, from the Hawaiian word wiki, meaning 'fast') and encyclopedia. Wikipedia's 12 million articles (2.77 million in English) have been written collaboratively by volunteers around the world, and almost all of its articles can be edited by anyone who can access the Wikipedia website. Launched in January 2001 by Jimmy Wales and Larry Sanger, it is currently the most popular general reference work on the Internet."></input>
+				<input name="sourceMode" type="hidden" value="2"></input>
+				<input name="minProbability" type="hidden" value="0.7"></input>
+			</form>			
+			
+			<br/>
+			<p>
+				To get Wikipedia Miner up and running, you have to download and host a huge amount of information. 
+				We've created the services below to make things a bit more convenient. 
+			</p>
+			<br/>
+			
+			<p>
+				The <a style="font-size:1.5em" href="service?task=search">Search</a> service 
+				allows you to treat Wikipedia as a gigantic thesaurus, 
+				for describing everything from 	<a href="service?task=search&term=nanotechnology">nanotechnology</a> 
+				to <a href="service?task=search&term=Barbie dolls">Barbie dolls</a>.
+				The Wikipedia articles this service locates provide a wide array of useful linguistic information, 
+				including definitions, synonyms, translations, and related topics.
+				The search vocabulary is extensive (5 million or more terms and phrases), and encodes 
+				both <a href="service?task=search&id=67396&term=synonymy">synonymy</a> and <a href="service?task=search&id=155327&term=polysemy">polysemy</a>. 
+			</p>
+			
+			<br/>	
+			
+			<p>
+				The <a style="font-size:1.5em" href="service?task=compare">Compare</a> service allows you to compare terms and concepts 
+				to measure how strongly they relate to each other. From this you can tell that <i>nanotechnology</i>
+				doesn't have much to do with 
+				<a href="service?task=compare&details=true&term1=nanotechnology&term2=Barbie dolls">Barbie dolls</a>, 
+				but that it does have a lot in common with 
+				<a href="service?task=compare&details=true&term1=nanotechnology&term2=engineering">engineering</a>.
+			</p>
+			<p>
+				The details of how this works (and an evaluation) can be found in this paper:
+			</p>
+			<ul class="references" style="margin-top: 0px;">
+				<li>
+					Milne, D. and Witten, I.H. (2008) <a onclick="toggleItem('ref7Abstract')">An effective, low-cost measure of semantic relatedness obtained from Wikipedia links</a>. In <i>Proceedings of the first AAAI Workshop on Wikipedia and Artificial Intelligence (WIKIAI'08)</i>, Chicago, I.L.
+					
+					<div class="abstract" id="ref7Abstract" style="display: none;">
+						<p>
+						 This paper describes a new technique for obtaining measures of semantic relatedness. Like other recent approaches, it uses Wikipedia to provide structured world knowledge about the terms of interest. Our approach is unique in that it does so using the hyperlink structure of Wikipedia rather than its category hierarchy or textual content. Evaluation with manually defined measures of semantic relatedness reveals this to be an effective compromise between the ease of computation of the former approach and the accuracy of the latter.
+						</p>
+						<p align="right"> <a class="small" 
+						href="http://www.cs.waikato.ac.nz/~dnk2/publications/WIKIAI08-ALowCostMeasureOfSemanticRelatednessObtainedFromWikipediaLinks.pdf">
+		
+						<img src="images/pdf.gif"></img></a></p>
+						
+						<div class="tl"></div><div class="tr"></div><div class="bl"></div><div class="br"></div>
+					</div>
+				</li>
+			</ul>
+			
+			<br/>
+						
+			<p>
+				The <a style="font-size:1.5em" href="service?task=wikify">Wikify</a> service automatically augments 
+				either <a onclick="document.wikify.submit()">snippets of text</a>
+				or <a href="wikifier/">entire web pages</a> with links to relevant Wikipedia topics. 
+				
+				It doesn't just use Wikipedia as a source of information to 
+				link to, but also as training data for how best to do it. In other words, it has been trained to make the 
+				same decisions as the people who edit Wikipedia. 
+			</p>
+			<p>
+				This paper describes how the wikifier was implemented and evaluated:
+			</p>
+			
+			<ul class="references" style="margin-top: 0px;">
+				<li>
+		
+					Milne, D. and Witten, I.H. (2008) <a onclick="toggleItem('ref8Abstract')">Learning to link with Wikipedia</a>. In <i>Proceedings of the ACM Conference on Information and Knowledge Management (CIKM'2008)</i>, Napa Valley, California.
+					
+					<div class="abstract" id="ref8Abstract" style="display: none;">
+						<p>
+						This paper describes how to automatically cross-reference documents with Wikipedia: the largest knowledge base ever known. It explains how machine learning can be used to identify significant terms within unstructured text, and enrich it with links to the appropriate Wikipedia articles. The resulting link detector and disambiguator performs very well, with recall and precision of almost 75%. This performance is constant whether the system is evaluated on Wikipedia articles or "real world" documents.
+						</p>
+						<p>
+						This work has implications far beyond enriching documents with explanatory links. It can provide structured knowledge about any unstructured fragment of text. Any task that is currently addressed with bags of words&mdash;indexing, clustering, retrieval, and summarization to name a few&mdash;could use the techniques described here to draw on a vast network of concepts and semantics. 
+						</p>
+		
+						<p align="right"> <a class="small" href="http://www.cs.waikato.ac.nz/~dnk2/publications/CIKM08-LearningToLinkWithWikipedia.pdf"><img src="images/pdf.gif"></img></a></p>
+						
+						<div class="tl"></div><div class="tr"></div><div class="bl"></div><div class="br"></div>
+					</div>
+				</li>
+			</ul>
+			
+                        <div class="note">
+                                <p style="margin-left:0px;">
+                                        <em>Note:</em> All of the services above are machine-readable.
+                                </p>
+                                <p class="small">
+                                        They can be made to return XML by appending <i>&xml</i> to the request.
+                                </p>
+                                <p class="small">
+                                        Feel free to point a bot or a service here (via POST or GET, it doesn't matter).
+					Bear in mind that we may restrict access if usage becomes excessive.
+                                        You can always run these services yourself by installing your own version of Wikipedia Miner.
+                                </p>
+                        </div>
+
+
+			<br/><br/>
+			
+			<div id="content_tl"></div>
+			<div id="content_tr"></div>
+			<div id="content_bl"></div>
+			<div id="content_br"></div> 
+ 		</div>
+ 		
+ 		
+ 		<script type="text/javascript">
+			var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+			document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+		</script>
+		<script type="text/javascript">
+			var pageTracker = _gat._getTracker("UA-611266-7");
+			pageTracker._initData();
+			pageTracker._trackPageview();
+		</script>
+ 		
+	</body>
+
+</BODY>
+</HTML> 

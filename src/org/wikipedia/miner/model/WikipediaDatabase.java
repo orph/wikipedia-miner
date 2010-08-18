@@ -91,15 +91,7 @@ public class WikipediaDatabase extends MySqlDatabase {
 				+ "rd_to int(8) unsigned NOT NULL, "
 				+ "PRIMARY KEY (rd_from, rd_to),"
 				+ "KEY rd_to (rd_to)) ENGINE=MyISAM DEFAULT CHARSET=utf8;") ;
-		
-		/*
-		createStatements.put("pagelink", "CREATE TABLE pagelink (" 
-				+ "pl_from int(8) unsigned NOT NULL, "
-				+ "pl_to int(8) unsigned NOT NULL, "
-				+ "PRIMARY KEY (pl_from, pl_to), "
-				+ "KEY pl_to (pl_to)) ENGINE=MyISAM DEFAULT CHARSET=utf8;") ;
-		*/
-		
+				
 		createStatements.put("categorylink", "CREATE TABLE categorylink (" 
 				+ "cl_parent int(8) unsigned NOT NULL, "
 				+ "cl_child int(8) unsigned NOT NULL, "
@@ -151,6 +143,7 @@ public class WikipediaDatabase extends MySqlDatabase {
 				+ "an_text varchar(300) binary NOT NULL, "
 				+ "an_to int(8) unsigned NOT NULL, "
 				+ "an_count int(8) unsigned NOT NULL, "
+				+ "an_type int(1) unsigned NOT NULL, "
 				+ "PRIMARY KEY (an_text, an_to), " 
 				+ "KEY (an_to)) ENGINE=MyISAM DEFAULT CHARSET=utf8;") ;
 		
@@ -223,14 +216,15 @@ public class WikipediaDatabase extends MySqlDatabase {
 		
 		stmt = createStatement() ;
 		stmt.executeUpdate("CREATE TABLE " + tableName + " (" 
-						+ "an_text varchar(500) character set latin1 collate latin1_bin NOT NULL, "
+						+ "an_text varchar(300) binary NOT NULL, "
 						+ "an_to int(8) unsigned NOT NULL, "
 						+ "an_count int(8) unsigned NOT NULL, "
+						+ "an_type int(1) unsigned NOT NULL, "
 						+ "PRIMARY KEY (an_text, an_to), " 
-						+ "KEY (an_to)) ; ") ;
+						+ "KEY (an_to)) ENGINE=MyISAM DEFAULT CHARSET=utf8;") ;
 		stmt.close() ;
 		
-		HashMap<String, Integer> anchorCounts = new HashMap<String, Integer>() ;
+		HashMap<String, int[]> senseDetails = new HashMap<String, int[]>() ;
 		
 		
 			
@@ -251,18 +245,25 @@ public class WikipediaDatabase extends MySqlDatabase {
 					String an_text = new String(rs.getBytes(1), "UTF-8") ;
 					long an_to = rs.getLong(2) ;
 					int an_count = rs.getInt(3) ;
+					int an_type = rs.getInt(4) ;
 					
 					an_text = tp.processText(an_text) ;
 					
 					//System.out.println(an_text + "," + an_to + "," + an_count) ;
 					
-					Integer count = anchorCounts.get(an_text + ":" + an_to) ;
+					int[] countAndType = senseDetails.get(an_text + ":" + an_to) ;
 					
-					if (count == null)
-						anchorCounts.put(an_text + ":" + an_to, an_count) ;
-					else
-						anchorCounts.put(an_text + ":" + an_to, count + an_count) ;
-				
+					if (countAndType == null) {
+						countAndType = new int[2] ;
+						countAndType[0] = an_count ;
+						countAndType[1] = an_type ;
+					} else {
+						countAndType[0] = countAndType[0] + an_count ;
+						countAndType[1] = Math.max(countAndType[1], an_type) ;
+					}
+					
+					senseDetails.put(an_text + ":" + an_to, countAndType) ;
+					
 				} catch (Exception e) {e.printStackTrace() ;} ;
 				
 				currRow++ ;
@@ -275,7 +276,7 @@ public class WikipediaDatabase extends MySqlDatabase {
 			pn.update(currRow) ;
 		}
 		
-		rows = anchorCounts.size() ;
+		rows = senseDetails.size() ;
 		pn.startTask(rows, "Saving processed anchors") ;
 		
 		chunkIndex = 0 ;
@@ -284,17 +285,17 @@ public class WikipediaDatabase extends MySqlDatabase {
 		
 		StringBuffer insertQuery = new StringBuffer() ; ;
 		
-		for(String key:anchorCounts.keySet()) {
+		for(String key:senseDetails.keySet()) {
 			currRow ++ ;
 			
 			int pos = key.lastIndexOf(':') ;
 			
 			String an_text = key.substring(0, pos) ;
 			long an_to = new Long(key.substring(pos+1)).longValue() ;
-			int an_count = anchorCounts.get(key) ;
+			int[] countAndType = senseDetails.get(key) ;
 			
 			if (an_text != "") 
-				insertQuery.append(" (\"" + addEscapes(an_text) + "\"," + an_to + "," + an_count + "),") ;
+				insertQuery.append(" (\"" + addEscapes(an_text) + "\"," + an_to + "," + countAndType[0] + "," + countAndType[1] + "),") ;
 			
 			if (currRow%chunkSize == 0) {
 				if (insertQuery.length() > 0) {
@@ -336,10 +337,10 @@ public class WikipediaDatabase extends MySqlDatabase {
 		
 		stmt = createStatement() ;
 		stmt.executeUpdate("CREATE TABLE " + tableName + " (" 
-				+ "ao_text varchar(500) character set latin1 collate latin1_bin NOT NULL, "
+				+ "ao_text varchar(300) binary NOT NULL, "
 				+ "ao_linkCount int(8) unsigned NOT NULL, "				
 				+ "ao_occCount int(8) unsigned NOT NULL, "
-				+ "PRIMARY KEY (ao_text)) ; ") ;
+				+ "PRIMARY KEY (ao_text)) ENGINE=MyISAM DEFAULT CHARSET=utf8;") ;
 					
 		stmt.close() ;
 		
@@ -492,6 +493,8 @@ public class WikipediaDatabase extends MySqlDatabase {
 		File pagelink_out = new File(directory.getPath() + File.separatorChar + "pagelink_out.csv") ;
 		checkFile(pagelink_out) ;
 		
+		
+		
 		// load manditory tables 
 		
 		if (overwrite || !tableExists("page")) {
@@ -531,7 +534,7 @@ public class WikipediaDatabase extends MySqlDatabase {
 			loadFile(linkcount, "linkcount") ;
 		}
 		
-		if (overwrite || !tableExists("anchor")) {
+		if (overwrite || !tableExists("anchor") || !fieldExists("an_type", "anchor")) {
 			initializeTable("anchor") ;
 			loadFile(anchor, "anchor") ;
 		}
@@ -583,6 +586,22 @@ public class WikipediaDatabase extends MySqlDatabase {
 	private void checkFile(File file) throws IOException {
 		if (!file.canRead())
 			throw new IOException(file.getPath() + " cannot be read") ;
+		
+		if (file.getName().equals("anchor.csv")) {
+			//an extra check to see that this file is not obsolete.
+			boolean ok = false ;
+			
+			BufferedReader input = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8")) ;
+			String line = input.readLine();
+			
+			if (line.matches("\"(.+?)\",(\\d+),(\\d+),(\\d+)"))
+				ok = true ;
+			
+			input.close() ;
+			
+			if (!ok)
+				throw new IOException(file.getPath() + " is obsolete. Please run the 'patchWikipediaData.pl' script (in the extraction directory) on the csv files before you import them. ") ;
+		}
 	}
 		
 	private void loadFile(File file, String tableName) throws IOException, SQLException{
@@ -594,7 +613,7 @@ public class WikipediaDatabase extends MySqlDatabase {
 		String line ;
 		
 		long bytesRead = 0 ;		
-		long chunkSize = bytes/100 ;
+		long chunkSize = 1000000 ;
 				
 		StringBuffer insertQuery = new StringBuffer() ;
 		
@@ -707,6 +726,12 @@ public class WikipediaDatabase extends MySqlDatabase {
 		if (!tableExists("generality"))
 			throw new SQLException("mysql table 'generality' does not exist and must be imported.") ;
 		
+		if (!tableExists("anchor"))
+			throw new SQLException("mysql table 'anchor' does not exist and must be imported.") ;
+		
+		if (!fieldExists("an_type", "anchor"))
+			throw new SQLException("mysql table 'anchor' is obsolete. Please run the 'patchWikipediaData.pl' script (in the extraction directory) on the csv files, and import them again.") ;
+		
 		if (!tableExists("content")){
 			contentImported = false ;
 			System.err.println("WARNING: page content has not been imported. You will only be able to retrieve the structure of wikipedia, not it's content.") ;
@@ -721,22 +746,24 @@ public class WikipediaDatabase extends MySqlDatabase {
 			definitionsSummarized = false ;
 			System.err.println("WARNING: definitions have not been summarized. Obtaining the first sentence and first paragraph of pages will be more expensive than it needs to be. ") ;
 		}
+		
+		
 	}
 	
 	/**
-	 * Checks if the database has been prepared for use with a particular morphological processor
+	 * Checks if the database has been prepared for use with a particular text processor
 	 * 
 	 * @param TextProcessor the TextProcessor to be checked.
 	 * @throws SQLException if the data has not been prepared for this TextProcessor.
 	 */
 	public void checkTextProcessor(TextProcessor TextProcessor) throws SQLException {
-			
-		if (!tableExists("anchor_" + TextProcessor.getName()))
-			throw new SQLException("anchors have not been prepared for the morphological processor \"" + TextProcessor.getName() + "\"") ;
 		
-		if (!tableExists("ngram")) {
-			if (!tableExists("ngram_" + TextProcessor.getName()))
-				throw new SQLException("ngrams have not been prepared for the morphological processor \"" + TextProcessor.getName() + "\"") ;
+		if (!tableExists("anchor_" + TextProcessor.getName()))
+			throw new SQLException("anchors have not been prepared for the text processor \"" + TextProcessor.getName() + "\"") ;
+		
+		if (tableExists("anchor_occurance")) {
+			if (!tableExists("anchor_occurance_" + TextProcessor.getName()))
+				throw new SQLException("anchor occurances have not been prepared for the text processor \"" + TextProcessor.getName() + "\"") ;
 		}
 	}
 
@@ -866,12 +893,18 @@ public class WikipediaDatabase extends MySqlDatabase {
 
 			for (String t:temp) {
 				String[] values = t.split(":") ;
-				int[] sense = new int[2] ;
+				
+				if (values.length != 3)
+					throw new IOException("data files are obsolete. Please run the 'patchWikipediaData.pl' script (in the extraction directory).") ;
+				
+				int[] sense = new int[3] ;
 								
 				sense[0] = new Integer(values[0]) ;
 				sense[1] = new Integer(values[1]) ;
+				sense[2] = new Integer(values[2]) ;
 				
-				if ((validIds == null || validIds.contains(sense[0])) && sense[1] > minLinkCount) {
+				// cache this if every id is valid, or if this id is valid and anchor is referred to enough times or mirrored by a title or redirect.
+				if ((validIds == null || validIds.contains(sense[0])) && (sense[1] > minLinkCount || sense[2] != 0)) {
 					senses.add(sense) ;
 				}
 			}
@@ -1319,7 +1352,7 @@ public class WikipediaDatabase extends MySqlDatabase {
 		String title ;
 		int type ;
 		
-		public CachedPage(String title, int type) {
+		protected CachedPage(String title, int type) {
 			this.title = title ;
 			this.type = type ;
 		}		
@@ -1330,11 +1363,11 @@ public class WikipediaDatabase extends MySqlDatabase {
 		int occCount ;
 		int[][] senses ;
 				
-		public CachedAnchor(Vector<int[]> senses) {
+		protected CachedAnchor(Vector<int[]> senses) {
 			this.occCount = -1 ;  //flag this as unavailable for now
 			this.linkCount = 0 ;
 			
-			this.senses = new int[senses.size()][2] ;
+			this.senses = new int[senses.size()][3] ;
 			
 			int i = 0 ;
 			for (int[] sense:senses) {
@@ -1344,7 +1377,7 @@ public class WikipediaDatabase extends MySqlDatabase {
 			}
 		}
 		
-		public void addOccCount(int occCount) {
+		protected void addOccCount(int occCount) {
 			
 			if (this.occCount < 0)
 				this.occCount = occCount ;
@@ -1352,7 +1385,7 @@ public class WikipediaDatabase extends MySqlDatabase {
 				this.occCount += occCount ;
 		}
 		
-		public void addSenses(Vector<int[]> senses) {
+		protected void addSenses(Vector<int[]> senses) {
 			
 			if (this.senses == null) {
 				this.linkCount = 0 ;
@@ -1368,38 +1401,44 @@ public class WikipediaDatabase extends MySqlDatabase {
 			}
 						
 			// merge the senses
-			HashMap<Integer,Integer> senseCounts = new HashMap<Integer,Integer>() ;
+			HashMap<Integer,int[]> senseData = new HashMap<Integer,int[]>() ;
+			
 			
 			for (int[] sense: this.senses) {
-				senseCounts.put(sense[0], sense[1]) ;			
+				int[] sd = {sense[1], sense[2]} ;
+				
+				senseData.put(sense[0], sd) ;			
 			}
 			
 			for (int[] sense: senses) {
-				Integer count = senseCounts.get(sense[0]) ;
+				int[] sd = senseData.get(sense[0]) ;
 				
-				if (count == null)
-					count = sense[1] ;
-				else
-					count = count + sense[1] ;
-				
-				senseCounts.put(sense[0], count) ;	
+				if (sd == null) {
+					sd = new int[2] ;
+					sd[0] = sense[1] ;
+					sd[1] = sense[2] ;
+				} else {
+					sd[0] = sd[0] + sense[1] ;
+					sd[1] = Math.max(sd[1], sense[2]) ;
+				}
+				senseData.put(sense[0], sd) ;	
 				
 				linkCount = linkCount + sense[1] ;
 			}
 			
 			// sort the merged senses
 			TreeSet<Sense> orderedSenses = new TreeSet<Sense>() ;
-			for (Integer senseId: senseCounts.keySet()) {
-				Integer count = senseCounts.get(senseId) ;
-				orderedSenses.add(new Sense(senseId, count)) ;
+			for (Integer senseId: senseData.keySet()) {
+				int[] sd = senseData.get(senseId) ;
+				orderedSenses.add(new Sense(senseId, sd[0], sd[1])) ;
 			}
 			
 			// store 
-			this.senses = new int[orderedSenses.size()][2] ;
+			this.senses = new int[orderedSenses.size()][3] ;
 			
 			int index = 0 ;
 			for (Sense sense: orderedSenses) {
-				int[] s = {sense.id, sense.count} ;
+				int[] s = {sense.id, sense.count, sense.type} ;
 				this.senses[index] = s ;		
 				index++ ;
 			}
@@ -1408,10 +1447,12 @@ public class WikipediaDatabase extends MySqlDatabase {
 		private class Sense implements Comparable<Sense> {
 			Integer id ;
 			Integer count ;
+			Integer type ;
 			
-			public Sense(Integer id, Integer count) {
+			protected Sense(Integer id, Integer count, Integer type) {
 				this.id = id ;
 				this.count = count ;
+				this.type = type ;
 			}
 			
 			public int compareTo(Sense s) {
@@ -1509,14 +1550,16 @@ public class WikipediaDatabase extends MySqlDatabase {
 	 */
 	public static void main(String[] args) {
 		try {
-			Wikipedia wikipedia = new Wikipedia("localhost", "enwiki_20080727", "student", "*****") ; 
+			
+			Wikipedia wikipedia = new Wikipedia("localhost", "rowiki_20090203", "root", null) ;
+			//Wikipedia wikipedia = new Wikipedia("localhost", "enwiki_2000727", "dnk2", null) ;
+						
 			//Wikipedia.getInstanceFromArguments(args) ;
 			
-			//File dataDirectory = new File("/research/wikipediaminer/data/en/20080727") ;
-			//wikipedia.getDatabase().loadData(dataDirectory, false) ;
-			
-			//wikipedia.getDatabase().summarizeDefinitions() ;
-			//wikipedia.getDatabase().prepareForTextProcessor(new CaseFolder()) ;
+			File dataDirectory = new File("/research/wikipediaminer/data/ro/20090203") ;
+			wikipedia.getDatabase().loadData(dataDirectory, false) ;
+						
+			wikipedia.getDatabase().prepareForTextProcessor(new CaseFolder()) ;
 			//wikipedia.getDatabase().prepareForTextProcessor(new Cleaner()) ;
 			//wikipedia.getDatabase().prepareForTextProcessor(new PorterStemmer()) ;
 			
@@ -1524,7 +1567,7 @@ public class WikipediaDatabase extends MySqlDatabase {
 			//wikipedia.getDatabase().getValidPageIds(dataDirectory, 5, null) ;	
 			
 			
-			wikipedia.getDatabase().summarizeDefinitions() ;
+			//wikipedia.getDatabase().summarizeDefinitions() ;
 		} catch (Exception e) {
 			e.printStackTrace() ;
 		}

@@ -1,4 +1,3 @@
-
 function init(){
 	
 	//set option values
@@ -22,23 +21,9 @@ function init(){
 			break ;
 		default:
 			document.getElementById("repeatMode_fis").checked = true ;	 
-	}
+	}	
 	
-	//setup slider
-	slider = new Slider("slider", 100, 22, "white", "#687898", "rgb(200,200,200)"); 
-	slider.onNewPosition = function() {
-		var value = Math.round(slider.position*100)/100 ;
-		if (value < 0.01) value = 0 ;
-		if (value > 0.89) value = 1 ;
-		
-		document.getElementById("minProbability").value = 1- value ; 
-	}
-
-	slider.setPosition(1-minProbability) ;
-	document.getElementById("minProbability").value = minProbability ; 
-	
-	
-	var rawHtmlContainer = document.getElementById("box_rawHtml");
+	var rawHtmlContainer = document.getElementById("tab_rawHtml");
 	if (rawHtmlContainer != null) {
 		var html = rawHtmlContainer.innerHTML;
 	
@@ -60,7 +45,7 @@ function init(){
 		rawHtmlContainer.innerHTML = html;
 	}
 	
-	var wikiContainer = document.getElementById("box_wiki");
+	var wikiContainer = document.getElementById("tab_wiki");
 	if (wikiContainer != null) {
 		var markup = wikiContainer.innerHTML;
 	
@@ -87,17 +72,11 @@ function init(){
 		
 		temp = temp + markup.substring(lastIndex) ;
 		wikiContainer.innerHTML = temp ;
-	
-		
-		//rawHtmlContainer.innerHTML = html;
-		
-		
-		
-		
-		
 	}
 	
-	resize() ;
+	if (sourceMode != 0 || repeatMode != 2 || minProbability != 0.5 || bannedTopics != "")
+		showOptions() ;
+	
 }
 
 function getDestination(wikiLink) {
@@ -132,32 +111,22 @@ function selectTab(id) {
 }
 
 function showOptions() {
-	document.getElementById("options").style.display = "block" ;
-	document.getElementById("showOptions").style.display = "none" ;
-	document.getElementById("hideOptions").style.display = "inline" ;
+	
+	$('#inputBox_container').css("margin-right", "430px") ;
+	
+	$('#options').show() ;
+	$('#hideOptions').show() ;
+	$('#showOptions').hide() ;
 }
 
 function hideOptions() {
-	document.getElementById("options").style.display = "none" ;
-	document.getElementById("showOptions").style.display = "inline" ;
-	document.getElementById("hideOptions").style.display = "none" ;
-}
-
-function resize() {
 	
-	var pd = getPageDimensions() ;
+	$('#inputBox_container').css("margin-right", "12px") ;
 	
+	$('#options').hide() ;
+	$('#hideOptions').hide() ;
+	$('#showOptions').show() ;
 	
-	var containers = document.getElementsByName("container")
-	for (var i = 0 ; i<containers.length ; i++)
-		containers[i].style.width = (pd.width - 70) + "px" ;
-		
-	var boxes = document.getElementsByName("outputBox") ;
-	for (var i = 0 ; i<boxes.length ; i++)
-		boxes[i].style.width = (pd.width - 82) + "px" ;
-		
-	var inputBox = document.getElementById("inputBox") ;
-	inputBox.style.width = (pd.width - 82) + "px" ;
 }
 
 function getPageDimensions() {

@@ -36,7 +36,7 @@
 
 	  chomp($line) ;
 	    
-	  if ($line =~ m/^\"(.+?)\",(\d+),(\d+)$/) {
+	  if ($line =~ m/\"(.+?)\",(\d+),(\d+)(,\d+)?/) {
 			my $anchor = $1 ;
 			my $id = $2 ;
 			my $count = $3 ;

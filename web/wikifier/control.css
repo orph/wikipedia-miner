@@ -45,6 +45,7 @@ table{
 	
 	width: 7px ;
 	height: 7px ;
+	font-size: 6px ;
 	top: -10px ;
 	
 	margin-left: 5px ;
@@ -52,39 +53,6 @@ table{
 	
 	border: 3px solid #f3f4f7;
 	cursor: pointer ;
-}
-
-
-.slider {
-        width: 150px ;
-        height: 22px ;
-        background-image: url(../images/slider_mid.gif);
-}
-
-.slider_left {
-        background-image: url(../images/slider_end.gif) ;
-        float: left ;
-        width: 1px ;
-        height: 22px ;
-}
-
-
-.slider_right {
-        background-image: url(../images/slider_end.gif) ;
-        float: right ;
-        width: 1px ;
-        height: 22px ;
-}
-
-
-.slider .thumb {
-        background-image: url(../images/slider_thumb.gif);
-        width: 13px ;
-        height: 22px ;
-}
-
-.slider .thumb:hover {
-        background-image: url(../images/slider_thumb_h.gif) ;
 }
 
 #txtSource {
@@ -198,36 +166,5 @@ a:active {
 }
 a:hover {
 	text-decoration: underline;
-}
-
-
-
-#progress {
-	margin: .4em auto .5em auto;
-	
-	width: 500px ;
-	height: 25px ;
-			
-	border: 1px solid #687898 ;
-	background-color: #f3f4f7 ;
-}
-
-#progressBar {
-	position: absolute ;
-	
-	height: 25px ;
-	width: 50px ;
-
-	background-color: #687898 ;
-}
-
-#progressLabel {
-	position: absolute ;
-	
-	height: 25px ;
-	width: 500px ;
-	
-	font-weight: bold ;
-	text-align: center ;
 }
 

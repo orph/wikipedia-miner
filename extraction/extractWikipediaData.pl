@@ -204,7 +204,7 @@
 
     $pages = Parse::MediaWikiDump::Pages->new($dump_file);
 
-    while(defined($page = $pages->next)) {
+    while(defined($page = $pages->page)) {
 	
 			print_progress("extracting page summary from dump file", $start_time, $pages->current_byte, $parts_total) ;
 
@@ -344,7 +344,7 @@
     my $pages = Parse::MediaWikiDump::Pages->new($dump_file) ;
     my $page ;
 
-    while(defined($page = $pages->next)) {
+    while(defined($page = $pages->page)) {
 
 			print_progress("extracting redirect summary from dump file", $start_time, $pages->current_byte, $parts_total) ;
 
@@ -454,11 +454,11 @@
     my $pages = Parse::MediaWikiDump::Pages->new($dump_file);
     my $page ;
     
-    my %anchors = () ;  #\"anchor\":id -> freq
+    my %anchors = () ;  #\"anchor\":id -> (freq:flag)
     my $anchorCount = 0 ;
 
-    while(defined($page = $pages->next)) {
-
+    while(defined($page = $pages->page)) {
+    
 			print_progress("extracting core summaries from dump file", $start_time, $pages->current_byte, $parts_total) ;
 			
 			#print ("anchors".scalar keys %anchors) ;
@@ -627,14 +627,23 @@
 								if (defined $target_id) {
 						    	print PAGELINK "$id,$target_id\n" ;
 
-						    	my $freq = $anchors{"\"$anchor_text\":$target_id"} ;
-
-						    	if (defined $freq) {
-										$anchors{"\"$anchor_text\":$target_id"} = $freq + 1 ;
-						    	} else {
-										$anchors{"\"$anchor_text\":$target_id"} = 1 ;
-										$anchorCount ++ ;
-						    	}
+									#save this anchor:dest combination as a two element array, with count as first element, and flag (0) as seccond
+						    	my $ref = $anchors{"\"$anchor_text\":$target_id"} ;
+						    	my @array ;
+					
+									if (defined $ref) {
+	    							@array = @{$ref} ;
+									}else {
+	    							@array = (0,0) ;
+	    							$anchorCount ++ ;
+									}
+	 
+	 								$array[0] = $array[0] + 1 ;
+	 
+									$anchors{"\"$anchor_text\":$target_id"} = \@array ;
+						    
+						    	#print LOG "\"$anchor_text\":$target_id, $array[0], $array[1]\n" ;
+						    	
 								} else {
 			    				print LOG "problem resolving page link to $target_title\n" ;
 								}
@@ -664,7 +673,7 @@
     close DISAMBIG ;
     close EQUIVALENCE ;
     
-    #slightly hack-ish, but lets add article titles and redirects to anchor table if they havent been used as anchors yet
+    #flag any anchor:dest combinations that are mirrored by redirects or article titles, and add titles and redirects if they havent been used as anchors yet.
     
     $start_time = time ;
     $parts_total = -s "$data_dir/page.csv" ;
@@ -681,36 +690,51 @@
 			
 				my $page_id = int $1 ;
 				my $page_title = $2 ;
-				my $page_type = int $3 ;
+				my $page_type = int $3 ;				
 				
-				if ($page_type == 1) {
-					#this is an article
-					if (not defined $anchors{"\"$page_title\":$page_id"}) {
-						$anchors{"\"$page_title\":$page_id"} = 0 ;
-					}
-				}
+				my $flag = 0 ;
 				
 				if ($page_type == 3) {
 					#this is a redirect, need to resolve it
 					
 					my %redirects_seen = () ;
     			while (defined($page_id) and defined($redirects{$page_id})){
-						#print " - - redirect $target_id\n" ;
+							
 						if (defined $redirects_seen{$page_id}) {
-			    		#seen this before, so cant resolve this loop of redirects
+							$page_id = undef ;
 			    		last ;
 						} else {
 			    		$redirects_seen{$page_id} = 1 ;
 			    		$page_id = $redirects{$page_id} ;
     				}
     			}
-									
-					if (defined $page_id) {
-						if (not defined $anchors{"\"$page_title\":$page_id"}) {
-							$anchors{"\"$page_title\":$page_id"} = 0 ;
-							$anchorCount ++ ;
-						}
+    			
+    			if (defined $page_id) {
+    				$flag = 1 ;    			
+    			}
+				}
+					
+				if ($page_type == 1) {
+					#this is a page title
+					$flag = 2 ;
+				}
+				
+				
+				if ($flag > 0) {
+					my $ref = $anchors{"\"$page_title\":$page_id"} ;
+					my @array ;
+					
+					if (defined $ref) {
+						#this has already been used as an anchor, needs to be flagged.
+	    			@array = @{$ref} ;
+	    			$array[1] = $flag ;	    			
+					}else {
+						#this has never been used as an anchor
+						$anchorCount ++ ;
+	    			@array = (0,$flag) ;
 					}
+	 
+	 				$anchors{"\"$page_title\":$page_id"} = \@array ;
 				}
 			}
 			print_progress(" - adding titles and redirects to anchor summary", $start_time, $parts_done, $parts_total) ;
@@ -721,8 +745,6 @@
 		
     close PAGE ;
     
-   
-    
     #now we need to save the anchors we have gathered
     
     $start_time = time ;
@@ -732,14 +754,15 @@
     open(ANCHOR, "> $data_dir/anchor.csv") ;
     binmode(ANCHOR, ':utf8');
 
-    while (my ($key, $freq) = each(%anchors) ) {
+    while (my ($key, $ref) = each(%anchors)) {
     	$parts_done++ ;
     
 			if ($key =~ m/\"(.+?)\":(\d+)/) {
 	    	my $anchor = clean_text($1) ;
 	    	my $target_id = $2 ;
 	    	
-	    	print ANCHOR "\"$anchor\",$target_id,$freq\n" ;
+	    	my @array = @{$ref} ;
+	    	print ANCHOR "\"$anchor\",$target_id,$array[0],$array[1]\n" ;
 			}
 			print_progress(" - saving anchors", $start_time, $parts_done, $parts_total) ;
 		}
@@ -747,6 +770,9 @@
 		print "\n" ;
 		
     close(ANCHOR) ;
+    
+    undef %anchors ;
+    
     
     # done with looking up page titles now, so lets free up some memory ;
     undef %pages_ns0 ;
@@ -797,7 +823,6 @@
 	
 		print "summarizing anchors for quick caching\n" ;
 	
-		
 		open(ANCHOR_SUMMARY, "> $data_dir/anchor_summary.csv") or die "'$data_dir' is not writable/\n" ;
 		binmode(ANCHOR_SUMMARY, ":utf8") ;
 		
@@ -806,7 +831,7 @@
 		
 		while ($pass < $passes) {	
 		
-			my %anchors = () ; #ngram-> reference to array of "id:count" strings of senses for anchor
+			my %anchors = () ; #ngram-> reference to array of "id:count:flag" strings of senses for anchor
 
 			open(ANCHOR, "$data_dir/anchor.csv") 
 				or die "cannot find '$data_dir/anchor.csv'. You must run extractCoreTables.pl first\n" ;
@@ -823,7 +848,7 @@
     		$parts_done = $parts_done + length $line ;  
     		  
     		chomp($line) ;
-    		if ($line =~ m/^\"(.+)\",(\d+),(\d+)$/) {
+    		if ($line =~ m/^\"(.+)\",(\d+),(\d+),(\d+)$/) {
     			    		
 					my $ngram = $1 ;
 					
@@ -837,7 +862,7 @@
 					#naively split the data on this hash value, and hope they are evenly spread enough to fit in memory.
 					if ($hash % $passes == $pass) {
 						
-						my @sense = map(int,($2,$3)) ;
+						my @sense = map(int,($2,$3,$4)) ;
 			
 						my $ref = $anchors{$ngram} ;
 						my @array ;
@@ -874,7 +899,7 @@
 
     		for my $sense (@senses) {
 					my @s = @{$sense} ;
-					$line = $line."$s[0]:$s[1];" ;
+					$line = $line."$s[0]:$s[1]:$s[2];" ;
     		}
     	
     		undef @{$anchors{$anchor}} ;
@@ -1100,6 +1125,10 @@
     print "\n" ;		
  
 		close LINKCOUNT ;
+		
+		
+		undef %links_in ;  
+		undef %links_out ; 
 	}
 		
 	# links out summary =============================================================================================================
@@ -1212,6 +1241,9 @@
 
 		close(PAGELINK) ;
 		close(LINKSOUT) ;
+		
+		undef %in_counts ;
+		undef @ids ;
 	}	
 	
 	# links in summary ==============================================================================================================
@@ -1369,9 +1401,13 @@
 
     	print_progress("   - saving links", $start_time, $parts_total, $parts_total) ;
     	print "\n" ;
+    	
+    	undef %links_in ;
 		}
 		
 		close LINKSIN ;
+		
+		undef %link_count ;
 	}
 
 	sub initialize_array{
@@ -1401,7 +1437,7 @@
 		my $pages = Parse::MediaWikiDump::Pages->new($dump_file);
 		my $page;
 
-		while(defined($page = $pages->next)) {
+		while(defined($page = $pages->page)) {
     
     	my $parts_done = $pages->current_byte ;
     

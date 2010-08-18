@@ -29,7 +29,7 @@ import javax.xml.transform.dom.*;
 import javax.xml.transform.stream.*;
 
 import java.io.*;
-import java.text.DecimalFormat;
+import java.text.*;
 import java.util.* ;
 
 import org.w3c.dom.Document;
@@ -41,6 +41,7 @@ import org.xml.sax.InputSource;
 
 import com.sun.org.apache.xerces.internal.dom.DocumentImpl;
 import com.sun.org.apache.xerces.internal.parsers.DOMParser;
+import java.text.NumberFormat;
 
 /**
  * @author David Milne
@@ -64,7 +65,7 @@ public class WikipediaMinerServlet extends HttpServlet {
 	private HashMap<String,Transformer> transformersByName ;
 	DOMParser parser = new DOMParser() ;
 	protected Document doc = new DocumentImpl();
-	protected DecimalFormat df = new DecimalFormat("#0.000000") ;
+	protected DecimalFormat df = (DecimalFormat) NumberFormat.getInstance(Locale.US);
 
 
 	public void init(ServletConfig config) throws ServletException {
@@ -108,15 +109,14 @@ public class WikipediaMinerServlet extends HttpServlet {
 		try {
 			TransformerFactory tf = TransformerFactory.newInstance();
 
-			//get the real system path of the web/xsl folder that exists in the project path
-			File xslDirectory = new File(getServletContext().getRealPath("xsl"));
+			File xsltDirectory = new File(context.getInitParameter("xslt_directory")) ;
 
 			transformersByName = new HashMap<String,Transformer>() ;
-			transformersByName.put("help", buildTransformer("help", xslDirectory, tf)) ;
-			transformersByName.put("loading", buildTransformer("loading", xslDirectory, tf)) ;
-			transformersByName.put("search", buildTransformer("search", xslDirectory, tf)) ;
-			transformersByName.put("compare", buildTransformer("compare", xslDirectory, tf)) ;
-			transformersByName.put("wikify", buildTransformer("wikify", xslDirectory, tf)) ;
+			transformersByName.put("help", buildTransformer("help", xsltDirectory, tf)) ;
+			transformersByName.put("loading", buildTransformer("loading", xsltDirectory, tf)) ;
+			transformersByName.put("search", buildTransformer("search", xsltDirectory, tf)) ;
+			transformersByName.put("compare", buildTransformer("compare", xsltDirectory, tf)) ;
+			transformersByName.put("wikify", buildTransformer("wikify", xsltDirectory, tf)) ;
 			
 			Transformer serializer = TransformerFactory.newInstance().newTransformer();
 			serializer.setOutputProperty(OutputKeys.INDENT, "yes");

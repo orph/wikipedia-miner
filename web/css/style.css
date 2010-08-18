@@ -5,7 +5,7 @@ body {
 	
 	font: x-small sans-serif;
 	text-align: justify ;
-	font-size: 90%;
+	font-size: 14px;
 } 
 
 em {
@@ -43,23 +43,29 @@ a:hover {
 
 
 h1, h2, h3 {
+	font-family: Trebuchet MS, sans-serif;
 	color: black;
-	background: none;
 	font-weight: normal;
+	border: none ;
+}
+
+h1 {
 	margin: 0;
 	margin-top: 1em;
 	padding-bottom: .17em;
 	border-bottom: 1px solid rgb(15,50,100);
 	margin-bottom: 0.5em ;
-	text-align: left ;
+	font-size: 170%; 
 }
 
-h1 { font-size: 170%; }
-h2 { font-size: 150%; }
+h2 { 
+	font-size: 150%; 
+	margin-bottom: 5px ;
+}
 
 h3 {
 	font-size: 120%;
-	border: none ;
+	margin-left: 1em ;
 }
 
 ul {
@@ -99,37 +105,6 @@ table, td, tr {
 p{
 	color: black ;
 }
-
-.progress {
-	margin: .4em 0em .5em 0em;
-	clear: left ;
-	
-	width: 500px ;
-	height: 25px ;
-	
-	border: 1px solid #687898 ;
-	background-color: #f3f4f7 ;
-}
-
-#progressBar {
-	position: absolute ;
-	
-	height: 25px ;
-	width: 0px ;
-
-	background-color: #687898 ;
-}
-
-#progressLabel {
-	position: absolute ;
-	
-	height: 25px ;
-	width: 500px ;
-	
-	font-weight: bold ;
-	text-align: center ;
-}
-
 
 .note {
 	margin-top: 50px ;
@@ -193,9 +168,7 @@ p{
 }
 
 .parameter {
-
 	margin-bottom: 20px ;
-
 }
 
 .more {

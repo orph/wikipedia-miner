@@ -19,6 +19,8 @@
 
 
 package org.wikipedia.miner.model;
+
+import gnu.trove.* ;
 import org.wikipedia.miner.util.text.*;
 import org.wikipedia.miner.util.*;
 import org.wikipedia.miner.model.WikipediaDatabase.CachedAnchor ;
@@ -114,18 +116,19 @@ public class Anchor implements Comparable<Anchor>{
 			senses = new SortedVector<Sense>() ;
 			
 			if (tp==null)
-				rs = stmt.executeQuery("SELECT an_to, an_count FROM anchor WHERE an_text=\"" + text + "\" ORDER BY an_count DESC, an_to") ;
+				rs = stmt.executeQuery("SELECT an_to, an_count, an_type FROM anchor WHERE an_text=\"" + text + "\" ORDER BY an_count DESC, an_to") ;
 			else 
-				rs = stmt.executeQuery("SELECT an_to, an_count FROM anchor_" + tp.getName() + " WHERE an_text=\"" + tp.processText(text) + "\" ORDER BY an_count DESC, an_to") ;
+				rs = stmt.executeQuery("SELECT an_to, an_count, an_type FROM anchor_" + tp.getName() + " WHERE an_text=\"" + tp.processText(text) + "\" ORDER BY an_count DESC, an_to") ;
 			
 			while (rs.next()) {
 				int an_to = rs.getInt(1) ;
 				int an_count = rs.getInt(2) ;
+				int an_type = rs.getInt(3) ;
 
 				linkCount = linkCount + an_count ;
 
 				try{
-					Sense sense = new Sense(an_to, an_count, database) ;
+					Sense sense = new Sense(an_to, an_count, an_type, database) ;
 					senses.add(sense, true) ;
 				} catch (Exception e) { };
 			}
@@ -219,14 +222,13 @@ public class Anchor implements Comparable<Anchor>{
 			
 			for (int[] s:ca.senses) {
 				try{
-					Sense sense = new Sense(s[0], s[1], database) ;
+					Sense sense = new Sense(s[0], s[1], s[2], database) ;
 					senses.add(sense, false) ;
 				} catch (Exception e) {} ;		
 			}
 			
 			return senses ;
 		} else {
-			// load senses from cache. Save to this.senses, so we dont have to do this again next time
 			
 			this.senses = new SortedVector<Sense>() ;
 			
@@ -234,16 +236,17 @@ public class Anchor implements Comparable<Anchor>{
 			ResultSet rs ;
 			
 			if (tp == null)
-				rs = stmt.executeQuery("SELECT an_to, an_count FROM anchor WHERE an_text=\"" + database.addEscapes(text) + "\" ORDER BY an_count DESC") ;
+				rs = stmt.executeQuery("SELECT an_to, an_count, an_type FROM anchor WHERE an_text=\"" + database.addEscapes(text) + "\" ORDER BY an_count DESC") ;
 			else
-				rs = stmt.executeQuery("SELECT an_to, an_count FROM anchor_" + tp.getName() + " WHERE an_text=\"" + database.addEscapes(tp.processText(text)) + "\" ORDER BY an_count DESC") ;
+				rs = stmt.executeQuery("SELECT an_to, an_count, an_type FROM anchor_" + tp.getName() + " WHERE an_text=\"" + database.addEscapes(tp.processText(text)) + "\" ORDER BY an_count DESC") ;
 			
 			while (rs.next()) {
 				int an_to = rs.getInt(1) ;
 				int an_count = rs.getInt(2) ;
+				int an_type = rs.getInt(3) ;
 				
 				try{
-					Sense sense = new Sense(an_to, an_count, database) ;
+					Sense sense = new Sense(an_to, an_count, an_type, database) ;
 					this.senses.add(sense, false) ;
 				} catch (Exception e) {} ;
 			}
@@ -330,23 +333,42 @@ public class Anchor implements Comparable<Anchor>{
 	
 	
 	/**
-	 * Represents a particular sense or destination of an Anchor.
+	 * Represents a particular sense or destination of an Anchor; an association between the anchor text and its destination.
 	 */
 	public class Sense extends Article{
-		int occCount ;
+		private int occCount ;
+		private int type ;
+		
+		/**
+		 * This association bet
+		 */
+		public static final int SENSE_NORMAL = 0 ;
+		
+		
+		/**
+		 * This association between anchor and destination is mirrored by a redirect to the destination. 
+		 */
+		public static final int SENSE_REDIRECT = 1 ;
+		
+		/**
+		 * This association between anchor and destination is mirrored by the title of the destination. 
+		 */
+		public static final int SENSE_TITLE = 2 ;
 		
 		/**
 		 * Initializes a sense
 		 * 
 		 * @param id the id of the relevant article (or disambiguation)
 		 * @param occCount the number of times the anchor goes to this destination
+		 * @param type e
 		 * @param wd an active Wikipedia database
 		 * @throws SQLException if there is a problem 
 		 */
-		public Sense(int id, int occCount, WikipediaDatabase wd) throws SQLException {
+		public Sense(int id, int occCount, int type, WikipediaDatabase wd) throws SQLException {
 			super(wd, id) ;
 			
 			this.occCount = occCount ;
+			this.type = type ;
 			setWeight(this.occCount) ;
 		}
 		
@@ -360,8 +382,24 @@ public class Anchor implements Comparable<Anchor>{
 		/**
 		 * @return the probability that this anchor goes to this destination
 		 */
-		public double getProbability() {
-			return ((double)occCount) / linkCount ;
+		public double getProbability() throws SQLException{
+			
+			if (getSenses().size() == 1)
+				return 1 ;
+			
+			if (linkCount == 0)
+				return 0 ;
+			else 			
+				return ((double)occCount) / linkCount ;
+		}
+		
+		
+		
+		/** 
+		 * @return the type of this anchor (SENSE_NORMAL, SENSE_REDIRECT or SENSE_TITLE)
+		 */
+		public int getType() {
+			return type ; 
 		}
 	}
 	
@@ -376,10 +414,15 @@ public class Anchor implements Comparable<Anchor>{
 		DecimalFormat df = new DecimalFormat("0.00") ;
 		
 		Wikipedia wikipedia = Wikipedia.getInstanceFromArguments(args) ;
-
 		BufferedReader in = new BufferedReader( new InputStreamReader( System.in ) );			
 
-		TextProcessor tp = null ; 
+		TextProcessor tp = new CaseFolder() ; 
+		
+		File dataDirectory = new File("/research/wikipediaminer/data/en/20090306") ;
+		ProgressNotifier pn = new ProgressNotifier(2) ;
+		TIntHashSet ids = wikipedia.getDatabase().getValidPageIds(dataDirectory, 3, pn) ;
+		wikipedia.getDatabase().cacheAnchors(dataDirectory, tp, ids, 3, pn) ;
+		
 
 		while (true) {
 			System.out.println("Enter a term (or press ENTER to quit): ") ;
@@ -397,9 +440,11 @@ public class Anchor implements Comparable<Anchor>{
 			System.out.println(" - occurs in " + anA.getLinkCount() + " documents as links") ;
 			if (wikipedia.getDatabase().areAnchorOccurancesSummarized())
 				System.out.println(" - occurs in " + anA.getOccurranceCount() + " documents over all") ;
+			
 			System.out.println(" - possible destinations:") ;
-			for (Sense sense: anA.getSenses()) 
-				System.out.println("    - " + sense + " - " + sense.getOccurances() + " (" + df.format(sense.getProbability() * 100) + "%)");
+			for (Sense sense: anA.getSenses()) {
+				System.out.println("    - " + sense + " - (type = " + sense.getType() + ") " + sense.getOccurances() + " (" + df.format(sense.getProbability() * 100) + "%)");
+			}
 	
 			System.out.println();
 
@@ -418,7 +463,6 @@ public class Anchor implements Comparable<Anchor>{
 				System.out.println();
 	
 				System.out.println("\nRelatedness of \"" + termA + "\" to \"" + termB + "\": " + df.format(anA.getRelatednessTo(anB) * 100) + "%") ;
-				
 			}
 		}
 	}

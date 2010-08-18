@@ -103,7 +103,7 @@ public class PageIterator implements Iterator<Page> {
 			throw new SQLException("No pages left to retrieve") ;
 		}
 
-		do {
+		while (rs.next()) {
 
 			try {
 				int id = rs.getInt(1) ;
@@ -122,7 +122,7 @@ public class PageIterator implements Iterator<Page> {
 			} catch (Exception e) {
 				e.printStackTrace() ;
 			} ;	
-		} while (rs.next());
+		}
 		
 		rs.close() ;
 		stmt.close() ;

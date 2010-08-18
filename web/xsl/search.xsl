@@ -35,7 +35,7 @@
   	
   	<xsl:when test="@unspecifiedParameters">
 	  	
-	  	<h1 style="margin-top:0px"> <em>Search</em> Service</h1>
+	  	<h1 style="margin-top:5px"> <em>Search</em> Service</h1>
 	  	
 	  	<p>
 	  		Welcome to the Wikipedia Miner <em>search</em> service. Searching is done through article titles, redirects, and anchors 
@@ -70,7 +70,7 @@
   	
   	<xsl:when test="@unknownTerm">
 	  	
-	  	<h1 style="margin-top:0px"> <em>Search</em> Service</h1>
+	  	<h1 style="margin-top:5px"> <em>Search</em> Service</h1>
 	  	
 	  	<p>
 	  		I have no idea what you mean by <em><xsl:value-of select="@unknownTerm"/></em>.
@@ -81,7 +81,7 @@
   	<xsl:when test="SenseList">
   		| <a href="{$server_path}/{$service_name}?task=search">search service</a> 
   	
-  		<h1 style="margin-top:0px">What do you mean by <em><xsl:value-of select="@term"/></em>?</h1>
+  		<h1 style="margin-top:5px">What do you mean by <em><xsl:value-of select="@term"/></em>?</h1>
   	
 			<p class="explanation">
 				WikipediaMiner uses the links found in Wikipedia's articles to identify different senses for terms. 
@@ -119,7 +119,7 @@
 		<xsl:when test="Article">
 			| <a href="{$server_path}/{$service_name}?task=search">search service</a> 
   	
-  		<h1 style="margin-top:0px"><xsl:value-of select="Article/@title"/></h1>
+  		<h1 style="margin-top:5px"><xsl:value-of select="Article/@title"/></h1>
 
 			<p>
 				<xsl:copy-of select="Article/FirstParagraph"/>	
@@ -248,7 +248,7 @@
 		
 			| <a href="{$server_path}/{$service_name}?task=search">search service</a> 
   	
-  		<h1 style="margin-top:0px">Category:<xsl:value-of select="Category/@title"/></h1>
+  		<h1 style="margin-top:5px">Category:<xsl:value-of select="Category/@title"/></h1>
 		
 			<p>
 				<xsl:copy-of select="Category/FirstParagraph"/>
@@ -335,12 +335,12 @@
 		
 			| <a href="{$server_path}/{$service_name}?task=search">search service</a> 
   	
-  		<h1 style="margin-top:0px">Disambiguation:<xsl:value-of select="Disambiguation/@title"/></h1>
+  		<h1 style="margin-top:5px">Disambiguation:<xsl:value-of select="Disambiguation/@title"/></h1>
 			<p> 
 				<a href="http://www.en.wikipedia.org/wiki/{Disambiguation/@title}">open in Wikipedia</a>
 			</p>
 		
-			<h1>Possible senses</h1>
+			<h2>Possible senses</h2>
 			<p class="explanation">Articles listed as possible senses of the term for which this page was created. </p>
 			<ul>
 				<xsl:for-each select="Disambiguation/SenseList/Sense">
@@ -356,7 +356,18 @@
 		</xsl:when>
 		
 	</xsl:choose>	
-  </body>
+ 
+ 		<script type="text/javascript">
+			var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+			document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+		</script>
+		<script type="text/javascript">
+			var pageTracker = _gat._getTracker("UA-611266-7");
+			pageTracker._initData();
+			pageTracker._trackPageview();
+		</script>
+
+ </body>
   </html>
 </xsl:template>
 

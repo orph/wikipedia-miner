@@ -35,7 +35,7 @@
 	
 		<xsl:when test="WikipediaMinerResponse/RelatednessResponse/@unspecifiedParameters">
 	  	
-	  	<h1 style="margin-top:0px"><em>Compare</em> Service</h1>
+	  	<h1 style="margin-top:5px"><em>Compare</em> Service</h1>
 	  	
 	  	<p>
 	  		Welcome to the Wikipedia Miner compare service, for measuring the semantic relatedness between terms, 
@@ -82,7 +82,7 @@
   	<xsl:when test="not(/WikipediaMinerResponse/RelatednessResponse/Sense1)">
   		| <a href="{$server_path}/{$service_name}?task=compare">compare service</a> 
   		
-  		<h1 style="margin-top:0px">
+  		<h1 style="margin-top:5px">
   			<em><xsl:value-of select="WikipediaMinerResponse/RelatednessResponse/@term1"/></em> and 
  				<em><xsl:value-of select="WikipediaMinerResponse/RelatednessResponse/@term2"/></em> are 
  				<em><xsl:value-of select="round(WikipediaMinerResponse/RelatednessResponse/@relatedness*100)"/>%</em> related.
@@ -91,7 +91,7 @@
   	
   	<xsl:otherwise>
   		| <a href="{$server_path}/{$service_name}?task=compare">compare service</a> 
-	 		<h1 style="margin-top:0px">
+	 		<h1 style="margin-top:5px">
 	 			<em><xsl:value-of select="WikipediaMinerResponse/RelatednessResponse/@term1"/></em> and 
 	 			<em><xsl:value-of select="WikipediaMinerResponse/RelatednessResponse/@term2"/></em> are 
 	 			<em><xsl:value-of select="round(WikipediaMinerResponse/RelatednessResponse/@relatedness*100)"/>%</em> related.
@@ -236,6 +236,19 @@
 			
 		</xsl:otherwise>
 	</xsl:choose>
+
+ 		<script type="text/javascript">
+			var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+			document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+		</script>
+		<script type="text/javascript">
+			var pageTracker = _gat._getTracker("UA-611266-7");
+			pageTracker._initData();
+			pageTracker._trackPageview();
+		</script>
+
+
+
   </body>
   </html>
 </xsl:template>

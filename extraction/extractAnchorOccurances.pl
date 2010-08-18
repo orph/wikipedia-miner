@@ -10,6 +10,10 @@
 	my $max_ngram_length = 10 ;
 	my $report_rate = 0.001;
 	
+
+	
+	
+	
 	# logging===================================================================================================================
 	
 	open (LOG, "> $data_dir/log.txt") or die "data dir '$data_dir' is not writable. \n" ;
@@ -53,7 +57,7 @@
 
 	  chomp($line) ;
 	    
-	  if ($line =~ m/\"(.+?)\",(\d+),(\d+)/) {
+	  if ($line =~ m/\"(.+?)\",(\d+),(\d+)(,\d+)?/) {
 			my $anchor = $1 ;
 			my $id = $2 ;
 			my $count = $3 ;

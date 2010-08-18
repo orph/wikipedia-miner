@@ -18,10 +18,10 @@
   	<xsl:choose>
   	<xsl:when test="/WikipediaMinerResponse/Description/@task"> 
 	  	&#160;|&#160;<a href="{$server_path}/{$service_name}?help">help</a>
-	  	<h1 style="text-transform:capitalize;margin-top:0px"> <em><xsl:value-of select="/WikipediaMinerResponse/Description/@task"/></em> Service</h1>  	
+	  	<h1 style="text-transform:capitalize;margin-top:5px"> <em><xsl:value-of select="/WikipediaMinerResponse/Description/@task"/></em> Service</h1>  	
   	</xsl:when>
   	<xsl:otherwise>
-  		<h1 style="margin-top:0px">Help</h1>
+  		<h1 style="margin-top:5px">Help</h1>
   	</xsl:otherwise>
   	</xsl:choose>
  

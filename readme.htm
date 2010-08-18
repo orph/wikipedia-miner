@@ -68,7 +68,7 @@
 		
 		<p>
 			If you only need Wikipedia's structure rather than it's full textual content, then you can save a lot of time  by using one of our pre-summarized
-			dumps (available <a href="">here</a>). Otherwise, you will need: 
+			dumps (available <a href="https://sourceforge.net/project/showfiles.php?group_id=191683&package_id=300169">here</a>). Otherwise, you will need: 
 		</p>
 		
 		<ul>
@@ -209,13 +209,35 @@
    			</p>
     
     		<p class="small">
-    			The details of this are in the JavaDoc.
+    			Here is some code to get you going:
    			</p>
-    
+			
+			<div class=code style="border:1px solid grey ; background-color:rgb(250,250,250) ; white-space: pre; padding: 5px ;">				
+<i>//connect to database</i>
+Wikipedia wikipedia = new Wikipedia(<i>mysql_server</i>, <i>databaseName</i>, <i>mysql_username</i>, <i>mysql_password</i>) ;
+				
+<i>//load cvs files</i>
+File dataDirectory = new File(<i>"path/to/csv/directory/"</i>) ;
+wikipedia.getDatabase().loadData(dataDirectory, false) ;
+				
+<i>//prepare text processors</i>
+wikipedia.getDatabase().prepareForTextProcessor(new CaseFolder()) ;
+				
+<i>//cache definitions (only worth doing if you will be using them a lot - will take a day or so)</i>
+wikipedia.getDatabase().summarizeDefinitions() ;
+			</div>
+			
     		<p class="small">
     			<em>NOTE:</em> You need the MySQLConnectorJ, Trove, and Wikipedia-Miner jar files in the build path to compile and run the java code.
     			You may also need to increase the memory available to the Java virtual machine, with the -Xmx flag
-			</p>
+				</p>
+				
+				<p class="small">
+    			<em>NOTE:</em> The format of the csv files has changed recently. If you are using an older summarized dump 
+    			you may need to run the <span class="code">patchWikipediaData.pl</span> script (in the extraction directory). 
+    			It takes the same parameters as the <span class="code">extractWikipediaData.pl</span> script discussed above.
+				</p>
+				
  	    </li>   
 		
 		<li class="bold">  		
@@ -244,7 +266,7 @@
 			Start developing!
  			
 			<p class="small">
-    			Hopefully the JavaDoc will be clear enough to get you going. Also have a look at the main methods for
+    			Hopefully the <a href="http://wdm.cs.waikato.ac.nz:8080/doc/">JavaDoc</a> will be clear enough to get you going. Also have a look at the main methods for
     			each of the main classes (Wikipedia, Article, Anchor, Category, etc) for demos on how to use them.
 			</p>
 			<p class="small">
@@ -333,6 +355,12 @@
 								The directory containing csv files extracted from a Wikipedia dump.
 							</p>						
 						</li>
+						<li><span class=code>xslt_directory</span>
+							<p class=small style="margin-left:10px">
+								The directory containing xslt files for transforming xml responses into readable html (<i>web/xsl</i>).
+							</p>						
+						</li>
+						
 					</ul>
 					
 					<p class=small>
@@ -376,7 +404,9 @@
 			With Tomcat running, you should now be able to navigate to <span class=code>server_path</span> in a web browser and see a page like <a href="http://wdm.cs.waikato.ac.nz:8080">this</a>, listing all of the web services available.
 		</p>
 		
-		
+		<p>
+			<span class=bold>Note:</span> You will probably have to allocate more memory to Tomcat than usual, because these web services have to cache wikipedia's skelleton structure into memory. That's about 3G for the current english language version. To allocate this, modify the <span class=code>CATALINA_OPTS</span> environment variable to include <span class=code>"-Xmx3G"</span>		
+		</p>
 		
 		
 		
