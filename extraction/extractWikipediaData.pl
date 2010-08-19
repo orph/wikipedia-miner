@@ -204,7 +204,7 @@
 
     $pages = Parse::MediaWikiDump::Pages->new($dump_file);
 
-    while(defined($page = $pages->page)) {
+    while(defined($page = $pages->next)) {
 	
 			print_progress("extracting page summary from dump file", $start_time, $pages->current_byte, $parts_total) ;
 
@@ -344,7 +344,7 @@
     my $pages = Parse::MediaWikiDump::Pages->new($dump_file) ;
     my $page ;
 
-    while(defined($page = $pages->page)) {
+    while(defined($page = $pages->next)) {
 
 			print_progress("extracting redirect summary from dump file", $start_time, $pages->current_byte, $parts_total) ;
 
@@ -457,7 +457,7 @@
     my %anchors = () ;  #\"anchor\":id -> (freq:flag)
     my $anchorCount = 0 ;
 
-    while(defined($page = $pages->page)) {
+    while(defined($page = $pages->next)) {
     
 			print_progress("extracting core summaries from dump file", $start_time, $pages->current_byte, $parts_total) ;
 			
@@ -1437,7 +1437,7 @@
 		my $pages = Parse::MediaWikiDump::Pages->new($dump_file);
 		my $page;
 
-		while(defined($page = $pages->page)) {
+		while(defined($page = $pages->next)) {
     
     	my $parts_done = $pages->current_byte ;
     
